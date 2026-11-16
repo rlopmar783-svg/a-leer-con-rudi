@@ -1,0 +1,25 @@
+{
+ "name": "¡A leer con Rudi!",
+ "short_name": "A leer",
+ "start_url": "./",
+ "scope": "./",
+ "display": "fullscreen",
+ "orientation": "any",
+ "background_color": "#8fd16a",
+ "theme_color": "#3B2F5C",
+ "lang": "es-ES",
+ "description": "Juegos para aprender a leer. Creado por Rodolfo López Martínez · CC BY-NC 4.0",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
+ ]
+}

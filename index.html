@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<!--
+  ¡A leer con Rudi! — App de iniciación a la lectura (4 niveles, 20 juegos).
+  Creado por Rodolfo López Martínez. Fecha de creación: 13 de noviembre de 2026 (versión 2: 16 de noviembre de 2026).
+  Licencia: Creative Commons Reconocimiento-NoComercial 4.0 Internacional (CC BY-NC 4.0)
+  https://creativecommons.org/licenses/by-nc/4.0/deed.es
+  Puedes compartir y adaptar esta obra, sin fines comerciales, citando como fuente original a Rodolfo López Martínez.
+  AVISO: Esta aplicación es gratuita y no se comercializa. Se ofrece «tal cual», sin garantías de ningún tipo.
+  El autor no se hace responsable del uso que se haga de ella ni de los problemas o daños que pudiera ocasionar su utilización.
+  Funciona sin conexión a internet: no carga nada de fuera.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="author" content="Rodolfo López Martínez">
+<meta name="dcterms.created" content="2026-11-13">
+<meta name="dcterms.rights" content="CC BY-NC 4.0 – Rodolfo López Martínez">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#3B2F5C">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-title" content="A leer con Rudi">
+<title>¡A leer con Rudi!</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: "Avenir Next Rounded", "Arial Rounded MT Bold", "Nunito", "Avenir Next", "Trebuchet MS", "Helvetica Neue", Arial, sans-serif;
+    color: #3B2F5C; background: #FFF6E5;
+    -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: rgba(0,0,0,0); -webkit-touch-callout: none;
+    touch-action: manipulation; overflow: hidden;
+  }
+  button { font-family: inherit; color: inherit; cursor: pointer; -webkit-appearance: none; }
+  #bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
+  #bg svg { display: block; }
+  .screen {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: none; z-index: 1; box-sizing: border-box;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: center; align-items: center;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  .screen.on { display: -webkit-flex; display: flex; }
+  .flexc { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center; }
+  .panel-w { background: rgba(255,255,255,.88); border-radius: 5vmin; box-shadow: 0 1vmin 3vmin rgba(0,0,0,.12); }
+  .title { font-size: 9vmin; font-weight: 800; color: #FF6B6B; text-shadow: 0 0.6vmin 0 #fff, 0 1vmin 2vmin rgba(0,0,0,.15); margin: 0; text-align: center; line-height: 1.1; }
+  .sub { font-size: 4vmin; font-weight: 700; margin: 1vmin 0 0; text-align: center; }
+
+  /* Bienvenida */
+  .duo { display: -webkit-flex; display: flex; -webkit-align-items: flex-end; align-items: flex-end; -webkit-justify-content: center; justify-content: center; }
+  .rudi { width: 30vmin; height: 31vmin; -webkit-animation: bob 2.4s ease-in-out infinite; animation: bob 2.4s ease-in-out infinite; }
+  .avatar { width: 26vmin; height: 30vmin; margin-right: 2vmin; }
+  .rudi svg, .avatar svg { width: 100%; height: 100%; display: block; }
+  @-webkit-keyframes bob { 0%,100% { -webkit-transform: translateY(0); } 50% { -webkit-transform: translateY(-1.5vmin); } }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.5vmin); } }
+  .splash-box { margin: auto; padding: 4vmin 6vmin; text-align: center; }
+  .go { margin-top: 3vmin; background: #4CB963; color: #fff; font-size: 7vmin; font-weight: 800; border: none; padding: 2.5vmin 9vmin; border-radius: 6vmin; box-shadow: 0 1.2vmin 0 #2f8a44; }
+  .go:active { -webkit-transform: translateY(0.8vmin); transform: translateY(0.8vmin); box-shadow: 0 0.4vmin 0 #2f8a44; }
+  .go:disabled { opacity: .45; }
+  .credit { font-size: 2.3vmin; margin-top: 2.5vmin; opacity: .75; line-height: 1.4; }
+
+  /* Nombre */
+  .name-box { margin: auto; padding: 4vmin 5vmin; text-align: center; width: 86vw; max-width: 760px; box-sizing: border-box; }
+  .bubble { position: relative; background: #fff; border-radius: 4vmin; padding: 2.5vmin 4vmin; font-size: 4.6vmin; font-weight: 700; box-shadow: 0 0.8vmin 2vmin rgba(0,0,0,.12); display: inline-block; margin-bottom: 2vmin; }
+  #nameInp { width: 100%; box-sizing: border-box; font-family: inherit; font-size: 8vmin; font-weight: 800; text-align: center; color: #3B2F5C; padding: 2vmin 3vmin; border: 1vmin solid #4D96FF; border-radius: 4vmin; outline: none; background: #fff; -webkit-user-select: text; user-select: text; }
+
+  /* Niveles */
+  .level-list { width: 92vw; max-width: 900px; margin: 2vmin auto; }
+  .level-card { width: 100%; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; text-align: left; border: none; color: #fff; border-radius: 5vmin; padding: 2.2vmin 4vmin; margin: 1.6vmin 0; box-shadow: 0 1.2vmin 0 rgba(0,0,0,.18); box-sizing: border-box; }
+  .level-card:active { -webkit-transform: translateY(0.8vmin); transform: translateY(0.8vmin); }
+  .lv-ico { font-size: 11vmin; margin-right: 3vmin; }
+  .lv-txt b { display: block; font-size: 5.4vmin; }
+  .lv-txt small { display: block; font-size: 3.4vmin; opacity: .95; font-weight: 600; }
+
+  /* Menú del nivel */
+  .menu-head { width: 100%; box-sizing: border-box; padding: 2vmin 3vmin 0; display: -webkit-flex; display: flex; -webkit-justify-content: space-between; justify-content: space-between; -webkit-align-items: flex-start; align-items: flex-start; }
+  .chip { background: rgba(255,255,255,.92); border: 0.4vmin solid #E6D5B8; border-radius: 3vmin; font-size: 2.9vmin; font-weight: 700; padding: 1.2vmin 2.2vmin; }
+  .menu-title { text-align: center; padding: 1.5vmin 4vmin; margin: 1vmin auto 0; }
+  .menu-title .title { font-size: 7.5vmin; }
+  .menu-title .sub { font-size: 3.4vmin; }
+  .menu { display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; -webkit-justify-content: center; justify-content: center; width: 98vw; max-width: 1150px; margin-top: 1.5vmin; }
+  .big-btn { position: relative; width: 30vw; max-width: 340px; height: calc(var(--vh, 1vh) * 21); margin: 1.4vmin; border: none; border-radius: 5vmin; color: #fff; font-size: 4.6vmin; font-weight: 800; box-shadow: 0 1.4vmin 0 rgba(0,0,0,.2); display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center; line-height: 1.1; padding: 0 1vmin; }
+  .big-btn:active { -webkit-transform: translateY(1vmin); transform: translateY(1vmin); }
+  .big-btn .ico { font-size: 10vmin; line-height: 1.15; }
+  .big-btn .ico.txt { font-size: 9vmin; }
+  .big-btn .cnt { position: absolute; top: 1.2vmin; right: 1.8vmin; font-size: 2.6vmin; background: rgba(255,255,255,.3); border-radius: 2vmin; padding: 0.3vmin 1.2vmin; }
+  .album { margin: 1.5vmin auto 0; width: 90vw; max-width: 1000px; max-height: calc(var(--vh, 1vh) * 16); overflow: hidden; padding: 1.2vmin 3vmin; box-sizing: border-box; text-align: center; font-size: 5vmin; line-height: 1.2; }
+  .album { border: none; font-family: inherit; color: inherit; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: space-between; justify-content: space-between; max-height: none; }
+  .alb-last { font-size: 7vmin; letter-spacing: 0.5vmin; }
+  .alb-btn { font-size: 3.4vmin; font-weight: 800; background: #9B5DE5; color: #fff; border-radius: 3vmin; padding: 1.2vmin 2.5vmin; white-space: nowrap; margin-left: 2vmin; }
+  #albumScr { background: rgba(59,47,92,.97); }
+  .alb-x { position: fixed; top: calc(2vmin + env(safe-area-inset-top)); right: 3vmin; width: 11vmin; height: 11vmin; border-radius: 50%; border: none; background: #FFE066; color: #3B2F5C; font-size: 6vmin; font-weight: 800; z-index: 12; }
+  .album-box { width: 94vw; max-width: 980px; max-height: 92vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 2vmin; box-sizing: border-box; }
+  .alb-count { font-size: 4vmin !important; margin-bottom: 1.5vmin !important; }
+  .alb-grid { display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; -webkit-justify-content: center; justify-content: center; }
+  .alb-slot { position: relative; width: 14vmin; height: 14vmin; margin: 1vmin; border-radius: 3vmin; background: rgba(255,255,255,.12); border: 0.6vmin dashed rgba(255,255,255,.4); font-size: 6vmin; color: rgba(255,255,255,.45); font-weight: 800;
+    display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center; box-sizing: border-box; }
+  .alb-slot.got { background: #fff; border: 0.6vmin solid #FFE066; font-size: 9vmin; color: #3B2F5C; box-shadow: 0 0.8vmin 0 rgba(0,0,0,.2); }
+  .alb-slot b { position: absolute; right: 0.5vmin; bottom: 0.2vmin; font-size: 2.6vmin; background: #FF6B6B; color: #fff; border-radius: 2vmin; padding: 0 0.8vmin; }
+  .alb-slot.wiggle { -webkit-animation: shake .45s; animation: shake .45s; }
+  .album .empty { font-size: 3.6vmin; }
+  .foot { margin: 1.5vmin auto 1.5vmin; font-size: 2.2vmin; padding: 0.8vmin 2.5vmin; border-radius: 3vmin; background: rgba(255,255,255,.8); text-align: center; }
+
+  /* Explicación del juego */
+  .intro-box { margin: auto; width: 90vw; max-width: 900px; padding: 3vmin 4vmin; box-sizing: border-box; text-align: center; }
+  .intro-ico { font-size: 13vmin; line-height: 1.1; }
+  .intro-ico.txt { font-weight: 800; color: #9B5DE5; }
+  .intro-title { font-size: 7vmin; font-weight: 800; margin: 0.5vmin 0 1.5vmin; }
+  .intro-row { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; text-align: left; }
+  .intro-row .rudi { width: 22vmin; height: 23vmin; -webkit-flex-shrink: 0; flex-shrink: 0; }
+  .intro-row .bubble { font-size: 4.2vmin; line-height: 1.35; margin: 0 0 0 2vmin; }
+  .intro-btns { margin-top: 2vmin; }
+  .intro-btns .go { color: #fff; box-shadow: 0 1.2vmin 0 rgba(0,0,0,.2); }
+  .round-btn { width: 13vmin; height: 13vmin; border-radius: 50%; border: none; background: #fff; font-size: 7vmin; box-shadow: 0 0.9vmin 0 #E6D5B8; }
+  .round-btn:active { -webkit-transform: translateY(0.6vmin); transform: translateY(0.6vmin); }
+
+  /* Juego */
+  .topbar { width: 100%; box-sizing: border-box; padding: 2vmin 3vmin; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: space-between; justify-content: space-between; }
+  .left-group { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
+  .fs-game { width: 10vmin; height: 10vmin; font-size: 5vmin; margin-left: 2vmin; }
+  .stars { font-size: 6vmin; letter-spacing: 0.6vmin; background: rgba(255,255,255,.75); border-radius: 4vmin; padding: 0.5vmin 2vmin; }
+  .stars span { opacity: .25; } .stars span.got { opacity: 1; }
+  .stage { -webkit-flex: 1; flex: 1; width: 100%; box-sizing: border-box; padding-bottom: 3vmin; position: relative;
+    display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: center; align-items: center; -webkit-justify-content: space-around; justify-content: space-around; }
+  .prompt { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center; min-height: 20vmin; max-width: 94vw; }
+  .hear { width: 24vmin; height: 24vmin; border-radius: 50%; border: none; background: #FFE066; font-size: 13vmin; box-shadow: 0 1.2vmin 0 #E8B931; -webkit-animation: pulse 1.8s infinite; animation: pulse 1.8s infinite; }
+  @-webkit-keyframes pulse { 0%,100% { -webkit-transform: scale(1); } 50% { -webkit-transform: scale(1.06); } }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  .word-card { background: #fff; border-radius: 5vmin; padding: 2vmin 6vmin; font-size: 15vmin; font-weight: 800; letter-spacing: 0.4vmin; box-shadow: 0 1.2vmin 0 rgba(0,0,0,.12); text-align: center; }
+  .word-card.sentence { letter-spacing: 0; line-height: 1.3; padding: 2.5vmin 5vmin; font-weight: 700; }
+  .gap { display: inline-block; min-width: 14vmin; border-bottom: 1vmin solid #FFA41B; color: #FFA41B; }
+  .gap.ok { color: #2f8a44; border-color: #4CB963; }
+  .pair { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
+  .pair .word-card { font-size: 22vmin; padding: 0 6vmin; min-width: 20vmin; }
+  .pair .q { font-size: 12vmin; margin: 0 3vmin; color: #fff; font-weight: 800; text-shadow: 0 0.5vmin 1vmin rgba(0,0,0,.3); }
+  .pair .q2 { width: 26vmin; height: 30vmin; border: 1.2vmin dashed #C9B48F; border-radius: 5vmin; box-sizing: border-box; font-size: 22vmin; font-weight: 800; background: rgba(255,255,255,.75); }
+  .pic { font-size: 24vmin; line-height: 1; border: none; background: rgba(255,255,255,.75); border-radius: 6vmin; padding: 1.5vmin 4vmin; }
+  .pic.small { font-size: 12vmin; padding: 0.5vmin 3vmin; }
+  .options { display: -webkit-flex; display: flex; -webkit-justify-content: center; justify-content: center; -webkit-flex-wrap: wrap; flex-wrap: wrap; max-width: 98vw; }
+  .card { background: #fff; border: none; border-radius: 5vmin; min-width: 26vmin; height: 29vmin; margin: 0 2vmin 2vmin; padding: 0 3vmin; font-size: 22vmin; font-weight: 800; line-height: 1; box-shadow: 0 1.4vmin 0 rgba(0,0,0,.15);
+    display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center; -webkit-transition: background .2s, opacity .3s; transition: background .2s, opacity .3s; }
+  .card small { font-size: 3.6vmin; margin-top: 1vmin; }
+  .card.syl { font-size: 16vmin; } .card.emo { font-size: 18vmin; }
+  .card.wordopt { font-size: 7vmin; height: 16vmin; min-width: 24vmin; }
+  .card.tf { font-size: 9vmin; height: 18vmin; min-width: 28vmin; }
+  .card.clap { font-size: 6vmin; height: 20vmin; min-width: 18vmin; padding: 0 2vmin; }
+  .card.clap .claps { letter-spacing: -1vmin; }
+  .card.pair-emo { font-size: 12vmin; letter-spacing: 1vmin; }
+  .card.multi-card { min-width: 24vmin; height: 24vmin; padding: 1vmin 2vmin; }
+  .multi { display: block; line-height: 1; text-align: center; font-size: 9vmin; max-width: 26vmin; word-break: break-all; }
+  .card.ok { background: #8EE4A1; -webkit-animation: pop .4s; animation: pop .4s; }
+  .card.bad { background: #FFB3B3; -webkit-animation: shake .45s; animation: shake .45s; }
+  .card.off { opacity: .3; }
+  .hint { font-size: 6vmin; min-height: 8vmin; color: #2f8a44; font-weight: 800; background: rgba(255,255,255,.85); border-radius: 4vmin; padding: 0.4vmin 3vmin; text-align: center; max-width: 92vw; }
+  .hint:empty { background: transparent; }
+  .hint .hl { color: #FF6B6B; } .hint .dot { color: #FFA41B; }
+  .slots { display: -webkit-flex; display: flex; -webkit-justify-content: center; justify-content: center; -webkit-flex-wrap: wrap; flex-wrap: wrap; max-width: 96vw; }
+  .slot { min-width: 19vmin; height: 17vmin; margin: 0.8vmin; padding: 0 1.5vmin; border: 1.1vmin dashed #C9B48F; border-radius: 4vmin; box-sizing: border-box; font-size: 11vmin; font-weight: 800; line-height: 1; background: rgba(255,255,255,.8);
+    display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center; }
+  .slots.words .slot { min-width: 16vmin; height: 12vmin; font-size: 6.5vmin; }
+  .slots.train .slot { border-radius: 2vmin 2vmin 4vmin 4vmin; border-color: #d84315; }
+  .slot.filled { border: 1.1vmin solid #4CB963; background: #E3F8E7; -webkit-animation: pop .35s; animation: pop .35s; }
+  .tile { background: #FFA41B; color: #fff; border: none; border-radius: 4vmin; min-width: 17vmin; height: 16vmin; margin: 1.2vmin; padding: 0 2vmin; font-size: 10vmin; font-weight: 800; line-height: 1; box-shadow: 0 1.2vmin 0 #C77A00; }
+  .tile.wtile { font-size: 6vmin; height: 12vmin; min-width: 14vmin; background: #4D96FF; box-shadow: 0 1.2vmin 0 #2b6cd4; }
+  .tile.used { visibility: hidden; }
+  .tile.bad { -webkit-animation: shake .45s; animation: shake .45s; background: #FF6B6B; box-shadow: 0 1.2vmin 0 #C04040; }
+  .pill { background: rgba(255,255,255,.92); border-radius: 5vmin; padding: 1vmin 3vmin; font-size: 5vmin; font-weight: 800; box-shadow: 0 0.8vmin 2vmin rgba(0,0,0,.12); z-index: 3; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
+  .pill .big-letter { font-size: 9vmin; color: #FF6B6B; margin: 0 1.5vmin; }
+  .mini-hear { border: none; background: #FFE066; border-radius: 50%; width: 10vmin; height: 10vmin; font-size: 5vmin; margin: 0 1.5vmin 0 0; box-shadow: 0 0.6vmin 0 #E8B931; }
+  .mini-hear.clr { background: #E9E1F7; box-shadow: 0 0.6vmin 0 #c9bde4; margin: 0 0 0 1.5vmin; }
+  .cnt3 { font-size: 4.5vmin; letter-spacing: 0.4vmin; }
+  /* Globos */
+  .balloon-stage { -webkit-justify-content: flex-start; justify-content: flex-start; }
+  .field { position: absolute; left: 0; right: 0; top: 14vmin; bottom: 0; overflow: hidden; }
+  .balloon { position: absolute; bottom: -30vmin; width: 17vmin; height: 21vmin; border: none; border-radius: 50% 50% 46% 46%; color: #fff; font-size: 11vmin; font-weight: 800; box-shadow: inset -2vmin -2vmin 0 rgba(0,0,0,.12);
+    -webkit-animation: rise linear forwards; animation: rise linear forwards; }
+  .balloon:after { content: ''; position: absolute; left: 50%; bottom: -6vmin; width: 0.4vmin; height: 6vmin; background: rgba(0,0,0,.35); }
+  .balloon.pop { -webkit-animation: none; animation: none; font-size: 12vmin; background: transparent !important; box-shadow: none; }
+  .balloon.wobble span { display: inline-block; -webkit-animation: shake .45s; animation: shake .45s; }
+  @-webkit-keyframes rise { to { -webkit-transform: translateY(calc(var(--vh, 1vh) * -130)); } }
+  @keyframes rise { to { transform: translateY(calc(var(--vh, 1vh) * -130)); } }
+  /* Trazar */
+  .trace-stage { -webkit-justify-content: flex-start; justify-content: flex-start; min-height: 0; overflow: hidden; }
+  .trace-wrap { -webkit-flex: 1; flex: 1; width: 100%; overflow: hidden; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center; min-height: 0; padding: 2vmin 0; box-sizing: border-box; }
+  canvas.trace { background: rgba(255,255,255,.92); border-radius: 5vmin; box-shadow: 0 1vmin 3vmin rgba(0,0,0,.15); touch-action: none; }
+  /* Memoria */
+  .mem-grid { display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; -webkit-justify-content: center; justify-content: center; max-width: 96vw; }
+  .mem { width: 19vmin; height: 19vmin; margin: 1.2vmin; border: none; border-radius: 3.5vmin; background: #9B5DE5; color: #fff; font-size: 11vmin; font-weight: 800; box-shadow: 0 1vmin 0 rgba(0,0,0,.2); position: relative; }
+  .mem .face { display: none; } .mem .back { font-size: 9vmin; opacity: .8; }
+  .mem.open { background: #fff; color: #3B2F5C; } .mem.open .face { display: inline; } .mem.open .back { display: none; }
+  .mem.matched { background: #8EE4A1; }
+  .mem .face.let { font-size: 13vmin; }
+
+  @-webkit-keyframes pop { 0% { -webkit-transform: scale(1); } 50% { -webkit-transform: scale(1.15); } 100% { -webkit-transform: scale(1); } }
+  @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+  @-webkit-keyframes shake { 0%,100% { -webkit-transform: translateX(0); } 20%,60% { -webkit-transform: translateX(-2vmin); } 40%,80% { -webkit-transform: translateX(2vmin); } }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-2vmin); } 40%,80% { transform: translateX(2vmin); } }
+
+  /* Premio y padres */
+  .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(59,47,92,.85); display: none; z-index: 10; -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center; color: #fff; text-align: center; }
+  .overlay.on { display: -webkit-flex; display: flex; }
+  .overlay h2 { font-size: 8vmin; margin: 0 0 1vmin; }
+  .overlay p { font-size: 4.5vmin; margin: 0; }
+  .sticker { font-size: 38vmin; line-height: 1.1; -webkit-animation: bounce 1s infinite; animation: bounce 1s infinite; }
+  @-webkit-keyframes bounce { 0%,100% { -webkit-transform: translateY(0) rotate(-5deg); } 50% { -webkit-transform: translateY(-4vmin) rotate(5deg); } }
+  @keyframes bounce { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-4vmin) rotate(5deg); } }
+  .overlay .row { margin-top: 4vmin; }
+  .overlay .row button { font-size: 5.5vmin; font-weight: 800; border: none; border-radius: 4vmin; padding: 2.5vmin 5vmin; margin: 0 2vmin; background: #FFE066; color: #3B2F5C; box-shadow: 0 1vmin 0 #E8B931; }
+  .panel { background: #fff; color: #3B2F5C; border-radius: 3vmin; width: 90vw; max-width: 780px; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 3vmin 4vmin; box-sizing: border-box; text-align: left; font-size: 2.8vmin; }
+  .panel h3 { margin: 0 0 1.5vmin; font-size: 4vmin; }
+  .panel h4 { margin: 2vmin 0 1vmin; font-size: 3.2vmin; }
+  .panel textarea { width: 100%; height: 22vh; font-family: Menlo, monospace; font-size: 2.2vmin; border: 1px solid #ddd; border-radius: 1.5vmin; padding: 1.2vmin; box-sizing: border-box; -webkit-user-select: text; user-select: text; }
+  .panel select { font-size: 2.8vmin; padding: 1vmin; border-radius: 1.5vmin; max-width: 100%; }
+  .panel .btns button { font-size: 2.8vmin; border: none; border-radius: 2vmin; padding: 1.4vmin 2.4vmin; margin: 1.2vmin 1.2vmin 0 0; background: #E9E1F7; }
+  .panel .btns button.main { background: #9B5DE5; color: #fff; }
+  .panel .tip { background: #F4EEE2; border-radius: 2vmin; padding: 1.4vmin 2vmin; margin-top: 1vmin; line-height: 1.45; }
+  .about { margin-top: 2.5vmin; padding-top: 2vmin; border-top: 1px solid #eee; line-height: 1.45; }
+  .cc { display: inline-block; font-weight: 700; border: 2px solid #3B2F5C; border-radius: 1vmin; padding: 0 1vmin; margin-right: 1vmin; }
+  .toast { position: fixed; left: 5vw; right: 5vw; bottom: calc(4vmin + env(safe-area-inset-bottom)); background: #3B2F5C; color: #fff; border-radius: 3vmin; padding: 3vmin 4vmin; font-size: 3.4vmin; z-index: 30; display: none; text-align: center; }
+  .toast.on { display: block; }
+  .toast button { margin-top: 2vmin; font-size: 3.4vmin; border: none; border-radius: 2vmin; padding: 1.2vmin 3vmin; background: #FFE066; color: #3B2F5C; }
+  .confetti { position: fixed; top: -12vmin; font-size: 8vmin; z-index: 20; pointer-events: none; -webkit-animation: fall 2.4s linear forwards; animation: fall 2.4s linear forwards; }
+  @-webkit-keyframes fall { to { -webkit-transform: translateY(120vh) rotate(360deg); } }
+  @keyframes fall { to { transform: translateY(120vh) rotate(360deg); } }
+
+  .avatar svg { image-rendering: pixelated; }
+  .avatar { width: 24vmin; height: 29vmin; }
+  .mini-av { width: 16vmin; height: 19vmin; margin: 0 0 0 2vmin; -webkit-flex-shrink: 0; flex-shrink: 0; }
+  .sig { position: fixed; left: 50%; bottom: calc(0.6vmin + env(safe-area-inset-bottom)); -webkit-transform: translateX(-50%); transform: translateX(-50%); font-size: 2vmin; background: rgba(255,255,255,.7); border-radius: 2vmin; padding: 0.3vmin 1.5vmin; white-space: nowrap; z-index: 2; pointer-events: none; }
+  .sig.light { background: rgba(255,255,255,.15); color: #fff; }
+  .warn-box { margin: 3vmin auto; width: 92vw; max-width: 860px; padding: 3vmin 4.5vmin; box-sizing: border-box; text-align: center; }
+  .warn-box .avatar { width: 16vmin; height: 19vmin; } .warn-box .rudi { width: 18vmin; height: 19vmin; }
+  .warn-box h2 { font-size: 5.5vmin; margin: 1vmin 0; } .warn-box h2 small { font-size: 3vmin; font-weight: 600; }
+  .warn-txt { text-align: left; font-size: 2.9vmin; line-height: 1.5; } .warn-txt p { margin: 1.2vmin 0; } .warn-txt ul { margin: 1vmin 0; padding-left: 4vmin; }
+  .dance { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
+  .dance .avatar, .dance .rudi { width: 20vmin; height: 24vmin; -webkit-animation: dance .6s ease-in-out infinite alternate; animation: dance .6s ease-in-out infinite alternate; }
+  .dance .rudi { -webkit-animation-delay: .3s; animation-delay: .3s; }
+  @-webkit-keyframes dance { from { -webkit-transform: rotate(-8deg) translateY(0); } to { -webkit-transform: rotate(8deg) translateY(-2vmin); } }
+  @keyframes dance { from { transform: rotate(-8deg) translateY(0); } to { transform: rotate(8deg) translateY(-2vmin); } }
+  .reward-msg { font-size: 4vmin !important; background: rgba(255,255,255,.15); border-radius: 3vmin; padding: 1vmin 3vmin; margin-top: 1vmin !important; max-width: 90vw; }
+  #breakScr .duo .avatar, #breakScr .duo .rudi { width: 22vmin; height: 26vmin; }
+  #breakOk:disabled { opacity: .6; }
+  .break-ico { font-size: 22vmin; margin: 0 2vmin; -webkit-animation: bob 2s ease-in-out infinite; animation: bob 2s ease-in-out infinite; }
+  .break-txt { font-size: 5vmin !important; max-width: 86vw; line-height: 1.35; background: rgba(255,255,255,.12); border-radius: 4vmin; padding: 2vmin 4vmin; margin-top: 1vmin !important; }
+  .streak { position: fixed; top: 22%; left: 50%; -webkit-transform: translateX(-50%); transform: translateX(-50%); background: #FF6B6B; color: #fff; font-size: 7vmin; font-weight: 800; padding: 2vmin 5vmin; border-radius: 5vmin; z-index: 25; box-shadow: 0 1vmin 3vmin rgba(0,0,0,.25); -webkit-animation: pop .5s; animation: pop .5s; white-space: nowrap; }
+  .mem-grid { max-width: 88vmin; }
+  @media (orientation: portrait) { .mem-grid { max-width: 90vmin; } .warn-txt { font-size: 3.8vmin; } .warn-box h2 { font-size: 6.5vmin; } .sig { font-size: 2.8vmin; } .mini-av { display: none; } .reward-msg { font-size: 4.8vmin !important; } }
+
+  /* Adaptación: vertical (móvil/tablet de pie) */
+  @media (orientation: portrait) {
+    .title { font-size: 11vmin; }
+    .rudi { width: 34vmin; height: 35vmin; } .avatar { width: 30vmin; height: 34vmin; }
+    .big-btn { width: 44vw; max-width: none; height: calc(var(--vh, 1vh) * 15); font-size: 5.6vmin; }
+    .big-btn .ico { font-size: 11vmin; }
+    .chip { font-size: 3.6vmin; }
+    .credit, .foot { font-size: 3vmin; }
+    .bubble { font-size: 5.4vmin; }
+    .intro-row { -webkit-flex-direction: column; flex-direction: column; text-align: center; }
+    .intro-row .bubble { margin: 2vmin 0 0; font-size: 5vmin; }
+    .card { min-width: 27vmin; height: 34vmin; margin: 0 1.2vmin 2vmin; padding: 0 1.5vmin; font-size: 24vmin; }
+    .card.syl { font-size: 17vmin; } .card.emo { font-size: 20vmin; }
+    .card.wordopt { font-size: 8vmin; height: 18vmin; min-width: 27vmin; }
+    .card.tf { font-size: 13vmin; height: 26vmin; min-width: 36vmin; }
+    .card.clap { min-width: 20vmin; height: 22vmin; }
+    .pic { font-size: 34vmin; } .pic.small { font-size: 20vmin; }
+    .hear { width: 32vmin; height: 32vmin; font-size: 17vmin; }
+    .slot { min-width: 22vmin; height: 21vmin; font-size: 13vmin; }
+    .tile { min-width: 20vmin; height: 19vmin; font-size: 12vmin; }
+    .slots.words .slot { min-width: 18vmin; height: 14vmin; font-size: 7.5vmin; }
+    .tile.wtile { font-size: 7.5vmin; height: 14vmin; }
+    .mem { width: 26vmin; height: 26vmin; font-size: 14vmin; }
+    .alb-slot { width: 17vmin; height: 17vmin; } .alb-slot.got { font-size: 11vmin; } .alb-btn { font-size: 4.2vmin; } .alb-count { font-size: 4.8vmin !important; }
+    .lv-txt b { font-size: 6.2vmin; } .lv-txt small { font-size: 4vmin; }
+    .panel { font-size: 3.8vmin; } .panel h3 { font-size: 5.4vmin; } .panel h4 { font-size: 4.4vmin; }
+    .panel .btns button, .panel select { font-size: 3.8vmin; }
+    .panel textarea { font-size: 3vmin; }
+  }
+  /* Móvil en horizontal */
+  @media (max-height: 500px) {
+    .title { font-size: 7vmin; } .menu-title { padding: 0.5vmin 3vmin; }
+    .big-btn { height: calc(var(--vh, 1vh) * 26); } .big-btn .ico { font-size: 9vmin; }
+    .alb-last { font-size: 5vmin; } .album { padding: 0.6vmin 2vmin; }
+    .topbar { padding: 1vmin 3vmin; } .round-btn { width: 11vmin; height: 11vmin; font-size: 6vmin; }
+    .hint { min-height: 5vmin; font-size: 5vmin; }
+    .rudi { width: 24vmin; height: 25vmin; } .avatar { width: 21vmin; height: 24vmin; }
+  }
+
+  .fs-fab { position: fixed; z-index: 40; bottom: calc(1.2vmin + env(safe-area-inset-bottom)); left: calc(1.2vmin + env(safe-area-inset-left)); border: none; border-radius: 99px; background: rgba(59,47,92,.82); color: #fff; font-weight: 800; font-size: max(13px, 2.2vmin); padding: max(7px, 1.1vmin) max(12px, 1.8vmin); display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; box-shadow: 0 0.6vmin 0 rgba(0,0,0,.18); -webkit-tap-highlight-color: transparent; }
+  .fs-fab .fs-ico { font-size: 1.3em; margin-right: 0.4em; line-height: 1; }
+  .fs-fab.hidden { display: none; }
+  .phone.portrait .fs-fab .fs-lbl { display: none; }
+  .phone.portrait .fs-fab .fs-ico { margin-right: 0; }
+  .fs-toggle:not(.fs-fab) { display: none !important; }
+
+  .intro-row .bubble { -webkit-flex: 1 1 auto; flex: 1 1 auto; min-width: 0; }
+  .fs-fab .fs-lbl { display: none; } .fs-fab .fs-ico { margin-right: 0; }
+  #splash.on ~ .fs-fab .fs-lbl, .fs-fab.on .fs-lbl { display: inline; }
+  #splash.on ~ .fs-fab .fs-ico, .fs-fab.on .fs-ico { margin-right: 0.4em; }
+  #warnOk { position: -webkit-sticky; position: sticky; bottom: calc(1.5vmin + env(safe-area-inset-bottom)); z-index: 3; }
+  .landscape .level-list { margin: 1vmin auto; }
+  .landscape .level-card { padding: calc(var(--vh, 1vh) * 1.6) 4vmin; margin: calc(var(--vh, 1vh) * 1.4) 0; }
+  .landscape .lv-ico { font-size: calc(var(--vh, 1vh) * 9); }
+  .landscape .intro-ico { font-size: calc(var(--vh, 1vh) * 11); }
+  .landscape .intro-row .rudi { width: calc(var(--vh, 1vh) * 20); height: calc(var(--vh, 1vh) * 21); }
+  .landscape .intro-row .bubble { font-size: calc(var(--vh, 1vh) * 4.4); }
+
+  .landscape .intro-box { max-width: 1300px; width: 94vw; padding: calc(var(--vh,1vh)*2) 3vmin; }
+  .landscape .intro-row .mini-av { width: calc(var(--vh, 1vh) * 16) !important; height: calc(var(--vh, 1vh) * 19) !important; -webkit-flex-shrink: 0; flex-shrink: 0; margin-left: 2vmin; }
+  .landscape .intro-title { font-size: calc(var(--vh, 1vh) * 7); margin: 0 0 calc(var(--vh,1vh)*1); }
+  .landscape .intro-btns { margin-top: calc(var(--vh,1vh)*2); display: -webkit-flex; display: flex; -webkit-justify-content: center; justify-content: center; -webkit-align-items: center; align-items: center; }
+  .landscape .intro-btns .go { margin: 0 0 0 2vmin; font-size: calc(var(--vh, 1vh) * 6); padding: calc(var(--vh,1vh)*2) 6vmin; }
+  .landscape .intro-btns .round-btn { width: calc(var(--vh,1vh)*12); height: calc(var(--vh,1vh)*12); font-size: calc(var(--vh,1vh)*6); margin: 0 1vmin; }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<noscript><div style="position:fixed;inset:0;z-index:99;background:#FFF6E5;padding:30px;font:20px sans-serif;text-align:center">Esta vista no puede ejecutar la app. Ábrela con un navegador (Safari, Chrome…).</div></noscript>
+
+<!-- Bienvenida: sólo el botón verde -->
+<div id="splash" class="screen on">
+  <div class="splash-box panel-w">
+    <div class="duo"><div class="avatar"></div><div class="rudi"></div></div>
+    <h1 class="title">¡A leer con Rudi!</h1>
+    <p class="sub" id="splashHi"></p>
+    <button class="go" id="playBtn">▶ Jugar</button>
+    <div class="credit">Creado por Rodolfo López Martínez · 13/11/2026 · CC BY-NC 4.0<br>Gratuita, sin uso comercial · Funciona sin internet</div>
+  </div>
+</div>
+
+<!-- Nombre -->
+<div id="nameScr" class="screen">
+  <div class="name-box panel-w">
+    <div class="duo"><div class="avatar"></div><div class="rudi"></div></div>
+    <div class="bubble">¡Hola! Soy Rudi. ¿Cómo te llamas?</div>
+    <input id="nameInp" type="text" maxlength="20" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" placeholder="Tu nombre">
+    <button class="go" id="nameOk" disabled>Continuar ➜</button>
+    <div class="credit">Creado por Rodolfo López Martínez · 13/11/2026 · Licencia CC BY-NC 4.0 · Gratuita, sin uso comercial</div>
+  </div>
+</div>
+
+<!-- Avisos para el adulto, con botón Aceptar -->
+<div id="warnScr" class="screen">
+  <div class="warn-box panel-w">
+    <div class="duo"><div class="avatar"></div><div class="rudi"></div></div>
+    <h2>Antes de empezar 👋 <small>(para el adulto)</small></h2>
+    <div class="warn-txt">
+      <p><b>¡A leer con Rudi!</b> es una aplicación <b>gratuita</b> creada por <b>Rodolfo López Martínez</b> (13/11/2026) con licencia <b>Creative Commons Reconocimiento-NoComercial 4.0 (CC BY-NC 4.0)</b>. Se puede compartir y modificar sin fines comerciales, citando siempre a su autor como fuente original.</p>
+      <p><b>No se comercializa.</b> Se ofrece «tal cual», sin garantías de ningún tipo. <b>El autor no se hace responsable</b> del uso que se haga de ella ni de los problemas o daños que pudiera ocasionar su utilización.</p>
+      <p><b>Uso responsable de pantallas.</b> El uso excesivo de móviles y tabletas en la infancia puede afectar al sueño, a la vista, a la atención, al lenguaje y a la actividad física. Las recomendaciones pediátricas aconsejan, de 2 a 5 años, <b>no más de una hora al día</b> de pantalla y siempre <b>acompañados por un adulto</b>; por debajo de los 2 años, evitarlas.</p>
+      <ul>
+        <li>Juega con tu hijo o hija: leer juntos es lo que más ayuda.</li>
+        <li>Haced sesiones cortas y pausas (cada 10 minutos la app propone otra actividad; se ajusta en ⚙️ Padres).</li>
+        <li>Evita las pantallas en la hora antes de dormir y durante las comidas.</li>
+        <li>Mantén el aparato a una distancia cómoda y con buena luz.</li>
+        <li>Esta app complementa, no sustituye, los libros de papel, el juego libre y el colegio.</li>
+      </ul>
+      <p><b>Privacidad:</b> la app no usa internet, no recoge datos y no tiene publicidad. El nombre y el progreso se guardan solo en este aparato.</p>
+    </div>
+    <button class="go" id="warnOk">✅ Aceptar</button>
+    <div class="credit">Creado por Rodolfo López Martínez · Licencia CC BY-NC 4.0</div>
+  </div>
+</div>
+
+<!-- Descanso: cada X minutos, con botón Continuar -->
+<div id="breakScr" class="overlay">
+  <div class="duo"><div class="avatar"></div><div class="break-ico" id="breakIco">🧸</div><div class="rudi"></div></div>
+  <h2 id="breakTitle">¡Toca un descanso!</h2>
+  <p id="breakTxt" class="break-txt"></p>
+  <div class="row"><button id="breakOk">▶ Continuar</button></div>
+  <div class="sig light">© Rodolfo López Martínez · CC BY-NC 4.0</div>
+</div>
+
+<!-- Niveles -->
+<div id="levelScr" class="screen">
+  <div class="menu-title panel-w"><h1 class="title" id="levelHi">Elige tu nivel</h1></div>
+  <div class="level-list" id="levelList"></div>
+  <div class="foot">Creado por Rodolfo López Martínez · 13/11/2026 · Licencia CC BY-NC 4.0 · Gratuita, sin uso comercial</div>
+</div>
+
+<!-- Menú de juegos del nivel -->
+<div id="menu" class="screen">
+  <div class="menu-head">
+    <button class="chip fs-toggle">⛶</button>
+    <div class="menu-title panel-w"><h1 class="title" id="menuTitle">¡A leer con Rudi!</h1><p class="sub" id="menuSub"></p></div>
+    <button class="chip" id="parentBtn">⚙️ Padres</button>
+  </div>
+  <div class="menu" id="gameList"></div>
+  <button class="album panel-w" id="album"></button>
+  <button class="chip" id="changeLevel" style="margin-top:1.5vmin">🔄 Cambiar de nivel</button>
+  <div class="foot">Creado por Rodolfo López Martínez · 13/11/2026 · CC BY-NC 4.0 · Gratuita, sin uso comercial (aviso en ⚙️ Padres)</div>
+</div>
+
+<!-- Explicación antes de cada juego -->
+<div id="intro" class="screen">
+  <div class="intro-box panel-w">
+    <div class="intro-ico" id="introIco"></div>
+    <div class="intro-title" id="introTitle"></div>
+    <div class="intro-row"><div class="rudi"></div><div class="bubble" id="introTxt"></div><div class="avatar mini-av"></div></div>
+    <div class="intro-btns">
+      <button class="round-btn" id="introBack">🏠</button>
+      <button class="round-btn" id="introHear">🔊</button>
+      <button class="go" id="introPlay">▶ ¡A jugar!</button>
+    </div>
+    <div class="credit">Creado por Rodolfo López Martínez · 13/11/2026 · Licencia CC BY-NC 4.0 · Gratuita, sin uso comercial</div>
+  </div>
+</div>
+
+<!-- Juego -->
+<div id="game" class="screen">
+  <div class="topbar">
+    <div class="left-group"><button class="round-btn" id="homeBtn">🏠</button><button class="round-btn fs-game fs-toggle">⛶</button></div>
+    <div class="stars" id="stars"></div>
+    <button class="round-btn" id="againBtn">🔊</button>
+  </div>
+  <div class="stage" id="stage"></div>
+  <div class="sig">© Rodolfo López Martínez · CC BY-NC 4.0</div>
+</div>
+
+<div id="albumScr" class="overlay">
+  <div class="album-box">
+    <button class="alb-x" id="albumX">✕</button>
+    <h2 id="albumTitle">Álbum</h2>
+    <p id="albumCount" class="alb-count"></p>
+    <div class="alb-grid" id="albumGrid"></div>
+    <div class="row"><button id="albumClose">✔ Cerrar</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"><div id="toastTxt"></div><button id="toastOk">Entendido</button></div>
+
+<div id="reward" class="overlay">
+  <h2 id="rewardTitle">¡Muy bien!</h2>
+  <p id="rewardSub">Has ganado una pegatina</p>
+  <div class="dance"><div class="avatar"></div><div class="sticker" id="stickerBig">🦄</div><div class="rudi"></div></div>
+  <p id="rewardMsg" class="reward-msg"></p>
+  <div class="row"><button id="rwHome">🏠 Juegos</button><button id="rwAgain">▶️ Otra vez</button></div>
+  <div class="sig light">© Rodolfo López Martínez · CC BY-NC 4.0</div>
+</div>
+
+<button id="fsFab" class="fs-fab" aria-label="Pantalla completa"><span class="fs-ico">⛶</span><span class="fs-lbl">Pantalla completa</span></button>
+
+<div id="parents" class="overlay">
+  <div class="panel">
+    <h3>Zona de padres</h3>
+    <div class="btns">
+      <button id="nameBtn">✏️ Cambiar nombre</button>
+      <button id="lvlBtn">🔄 Cambiar nivel</button>
+      <button id="caseBtn">Letras: minúsculas</button>
+      <button id="musicBtn">Música: sí</button>
+      <button id="sfxBtn">Sonidos: sí</button>
+      <button id="breakBtn">Aviso de descanso cada 10 min</button>
+      <button id="warnBtn">📋 Ver avisos</button>
+    </div>
+    <h4>Voz</h4>
+    <div class="btns"><button id="recBtn">Voz grabada (Gemini): sí</button></div>
+    <div id="voiceInfo"></div>
+    <div class="btns"><select id="voiceSel"></select> <button id="voiceTest">▶ Probar</button> <button id="speedBtn">Voz: normal</button></div>
+    <div class="tip"><b>Para una voz más natural (gratis y sin internet):</b> en el iPhone o iPad ve a <b>Ajustes → Accesibilidad → Contenido leído → Voces → Español (España)</b> y descarga <b>Mónica</b> o <b>Marisol</b> en versión <b>Mejorada</b> o <b>Premium</b>. Después vuelve aquí y elígela. En Android: Ajustes → Idioma → Salida de texto a voz → Google → instalar «Español (España)».</div>
+    <h4>Progreso</h4>
+    <textarea id="progressTxt" readonly></textarea>
+    <div class="btns">
+      <button class="main" id="copyBtn">Copiar progreso</button>
+      <button id="resetBtn">Borrar progreso</button>
+      <button id="closeParents">Cerrar</button>
+    </div>
+    <div class="about">
+      <b>¡A leer con Rudi!</b> · Creado por <b>Rodolfo López Martínez</b> · Fecha de creación: 13 de noviembre de 2026<br>
+      <span class="cc">cc BY-NC</span>Licencia Creative Commons Reconocimiento-NoComercial 4.0 Internacional (CC BY-NC 4.0): creativecommons.org/licenses/by-nc/4.0/deed.es.
+      Puedes compartirla y modificarla sin fines comerciales, citando como fuente original a <b>Rodolfo López Martínez</b> e indicando si has hecho cambios.<br><br>
+      <b>Aviso:</b> Esta aplicación es gratuita y no se comercializa. Se ofrece «tal cual», sin garantías de ningún tipo. El autor no se hace responsable del uso que se haga de ella ni de los problemas o daños que pudiera ocasionar su utilización.<br><br>
+      Después de abrirla una vez con internet, funciona sin conexión. El progreso se guarda solo en este aparato. Voz grabada con Gemini (Google AI Studio); lo que aún no está grabado lo lee la voz del aparato.
+    </div>
+  </div>
+</div>
+
+<script>
+var VOZ = {"a":"p0:0:1917","a de avion":"p0:1917:11997","abeja":"p0:13914:4557","abejas":"p0:18471:4197","abuela":"p0:22668:4197","abuelo":"p0:26865:4557","aguacate":"p0:31422:7197","aguila":"p0:38619:3597","aguilas":"p0:42216:4677","amarilla":"p0:46893:3717","ambulancia":"p0:50610:6837","ambulancias":"p0:57447:6357","ancla":"p0:63804:3837","anclas":"p0:67641:4317","anillo":"p0:71958:5397","anillos":"p0:77355:3237","aplauso":"p0:80592:5157","araña":"p0:85749:5157","arbol":"p0:90906:4077","arco":"p0:94983:2757","arcoiris":"p0:97740:5637","arcos":"p0:103377:3837","ardilla":"p0:107214:4437","arroz":"p0:111651:3837","autobus":"p0:115488:4317","avion":"p0:119805:3477","aviones":"p0:123282:4557","años":"p0:127839:3477","baila":"p0:131316:2877","ballena":"p0:134193:5157","ballenas":"p0:139350:4077","barco":"p0:143427:3477","baño":"p0:146904:2517","baños":"p0:149421:5037","be":"p0:154458:2037","be de ballena":"p0:156495:10797","bebe":"p0:167292:3237","berenjena":"p0:170529:5277","berenjenas":"p0:175806:5157","beso":"p0:180963:2517","besos":"p0:183480:4917","biberon":"p0:188397:4557","biberones":"p0:192954:4557","bici":"p0:197511:3597","bicis":"p0:201108:5397","bien":"p0:206505:4197","bienvenido":"p0:210702:6117","bikini":"p0:216819:4557","boca":"p0:221376:3357","bocadillo":"p0:224733:4557","bocadillos":"p0:229290:5997","bocas":"p0:235287:5277","bolso":"p0:240564:4557","bolsos":"p0:245121:4917","bombero":"p0:250038:4797","bomberos":"p0:254835:5637","bombilla":"p0:260472:4197","bombillas":"p0:264669:7317","boniato":"p0:271986:5277","bota":"p0:277263:3477","botas":"p0:280740:5397","botella":"p0:286137:5637","botellas":"p0:291774:3837","brazo":"p0:295611:3837","brazos":"p0:299448:4317","brilla":"p0:303765:3717","brocoli":"p0:307482:3597","bufalo":"p0:311079:3717","bufalos":"p0:314796:4557","bufanda":"p0:319353:5397","bufandas":"p0:324750:5277","buho":"p0:330027:3237","buhos":"p0:333264:4797","buzon":"p0:338061:5277","buzones":"p0:343338:4437","caballo":"p0:347775:5277","caballos":"p0:353052:3957","cabezas":"p0:357009:3957","cabra":"p0:360966:2877","cabras":"p0:363843:3597","cacahuete":"p0:367440:4437","cacahuetes":"p0:371877:5517","cacarea":"p0:377394:4797","cactus":"p0:382191:4197","caja":"p0:386388:2397","cajas":"p0:388785:3237","calamar":"p0:392022:3837","calamares":"p0:395859:4917","calcetin":"p0:400776:4077","calcetines":"p0:404853:5277","cama":"p0:410130:2517","camello":"p0:412647:5037","camellos":"p0:417684:4197","camion":"p0:421881:3597","camiones":"p0:425478:4917","camisa":"p0:430395:3117","camisas":"p0:433512:3957","campana":"p0:437469:3717","campanas":"p0:441186:5277","candado":"p0:446463:5157","candados":"p0:451620:4437","cangrejo":"p0:456057:4317","canoa":"p0:460374:4557","canta":"p0:464931:4077","cara":"p0:469008:2637","caracol":"p0:471645:4197","caracoles":"p0:475842:7437","caramelo":"p0:483279:4797","caras":"p0:488076:3957","carnero":"p0:492033:4077","carneros":"p0:496110:4677","carta":"p0:500787:3237","cartas":"p0:504024:4077","casa":"p0:508101:2877","casas":"p0:510978:4437","casco":"p0:515415:3597","cascos":"p0:519012:4197","castaña":"p0:523209:4197","castañas":"p0:527406:5637","castillo":"p0:533043:5397","castillos":"p0:538440:6717","ce":"p0:545157:2037","ce de casa":"p0:547194:8037","cebra":"p0:555231:3357","cebras":"p0:558588:4557","cerdo":"p0:563145:2877","cereza":"p0:566022:5397","cerezas":"p0:571419:4437","chincheta":"p0:575856:4197","chinchetas":"p0:580053:5397","chocolate":"p0:585450:6117","cielos":"p0:591567:3477","ciervo":"p0:595044:3477","ciervos":"p0:598521:4437","circo":"p0:602958:3717","circos":"p0:606675:4317","clip":"p0:610992:4197","clips":"p0:615189:2757","coche":"p0:617946:2517","coches":"p0:620463:3597","cocina":"p0:624060:5157","coco":"p0:629217:2877","cocodrilo":"p0:632094:5037","cocodrilos":"p0:637131:6117","cocos":"p0:643248:4677","cohete":"p0:647925:4317","cohetes":"p0:652242:3597","colegio":"p0:655839:4677","come":"p0:660516:2997","cometa":"p0:663513:4437","concha":"p0:667950:3237","conchas":"p0:671187:5757","conejo":"p0:676944:5277","conejos":"p0:682221:4077","copa":"p0:686298:2877","copas":"p0:689175:4317","corazon":"p0:693492:3717","corazones":"p0:697209:5397","corbata":"p0:702606:5157","corbatas":"p0:707763:4677","corona":"p0:712440:4917","coronas":"p0:717357:3837","corre":"p0:721194:3477","corta":"p0:724671:4917","cose":"p0:729588:4197","croa":"p0:733785:3597","cruasan":"p0:737382:4677","cruasanes":"p0:742059:5277","cu":"p0:747336:1557","cu de queso":"p0:748893:7317","cuaderno":"p0:756210:4197","cuadernos":"p0:760407:4797","cuatro":"p0:765204:3237","cuchara":"p0:768441:4557","cucharas":"p0:772998:4077","cuentacuentos":"p0:777075:6357","cuentos":"p0:783432:4557","cumple":"p0:787989:2877","cumpleaños":"p0:790866:5397","dado":"p0:796263:3237","dados":"p0:799500:4557","de":"p0:804057:2157","de de dado":"p0:806214:8757","dedo":"p0:814971:3357","dedos":"p0:818328:5397","delfin":"p0:823725:4917","despertador":"p0:828642:7677","despertadores":"p0:836319:6237","diana":"p0:842556:2637","dianas":"p0:845193:4197","dinero":"p0:849390:4677","dinosaurio":"p0:854067:5397","dinosaurios":"p0:859464:8517","donde esta la a":"p0:867981:11277","donde esta la be":"p0:879258:7197","donde esta la ce":"p0:886455:8517","donde esta la cu":"p0:894972:9237","donde esta la de":"p0:904209:7557","donde esta la e":"p0:911766:8157","donde esta la efe":"p0:919923:7677","donde esta la ele":"p0:927600:10437","donde esta la eme":"p0:938037:10437","donde esta la ene":"p0:948474:11997","donde esta la equis":"p0:960471:8997","donde esta la erre":"p0:969468:9957","donde esta la ese":"p0:979425:10197","donde esta la eñe":"p0:989622:11157","donde esta la ge":"p0:1000779:6717","donde esta la hache":"p0:1007496:8397","donde esta la i":"p0:1015893:5877","donde esta la jota":"p0:1021770:6837","donde esta la ka":"p0:1028607:5517","donde esta la o":"p0:1034124:8757","donde esta la pe":"p0:1042881:9597","donde esta la te":"p0:1052478:9117","donde esta la u":"p0:1061595:9357","donde esta la uve":"p0:1070952:8757","donde esta la uve doble":"p0:1079709:8397","donde esta la ye":"p0:1088106:6957","donde esta la zeta":"p1:0:7797","donut":"p1:7797:3597","donuts":"p1:11394:4077","dos":"p1:15471:2757","dragon":"p1:18228:3957","dragones":"p1:22185:5757","ducha":"p1:27942:2757","duchas":"p1:30699:3717","duerme":"p1:34416:3837","e":"p1:38253:1437","e de elefante":"p1:39690:9117","efe":"p1:48807:3117","efe de fresa":"p1:51924:9357","el":"p1:61281:2037","ele":"p1:63318:4797","ele de luna":"p1:68115:9837","elefante":"p1:77952:5037","elefantes":"p1:82989:6357","eme":"p1:89346:2157","eme de mono":"p1:91503:10437","empieza por la a":"p1:101940:8517","empieza por la be":"p1:110457:6837","empieza por la ce":"p1:117294:7437","empieza por la cu":"p1:124731:7197","empieza por la de":"p1:131928:7437","empieza por la e":"p1:139365:7557","empieza por la efe":"p1:146922:7917","empieza por la ele":"p1:154839:9117","empieza por la eme":"p1:163956:11637","empieza por la ene":"p1:175593:10317","empieza por la equis":"p1:185910:6957","empieza por la erre":"p1:192867:8517","empieza por la ese":"p1:201384:7557","empieza por la eñe":"p1:208941:10797","empieza por la ge":"p1:219738:7317","empieza por la hache":"p1:227055:7797","empieza por la i":"p1:234852:6837","empieza por la jota":"p1:241689:8157","empieza por la ka":"p1:249846:6837","empieza por la o":"p1:256683:9717","empieza por la pe":"p1:266400:8157","empieza por la te":"p1:274557:6837","empieza por la u":"p1:281394:6237","empieza por la uve":"p1:287631:7077","empieza por la uve doble":"p1:294708:7557","empieza por la ye":"p1:302265:5517","empieza por la zeta":"p1:307782:6117","ene":"p1:313899:4317","ene de nube":"p1:318216:9477","ensalada":"p1:327693:4677","equis":"p1:332370:3117","equis de taxi":"p1:335487:6957","erizo":"p1:342444:4197","erre":"p1:346641:4197","erre de raton":"p1:350838:8397","es":"p1:359235:2757","escorpion":"p1:361992:6117","escorpiones":"p1:368109:6837","escribe":"p1:374946:5757","escudo":"p1:380703:5637","ese":"p1:386340:2397","ese de sol":"p1:388737:7197","espagueti":"p1:395934:4917","esqui":"p1:400851:2997","estrella":"p1:403848:4557","explota los globos de la letra a":"p1:408405:16197","explota los globos de la letra be":"p1:424602:13557","explota los globos de la letra ce":"p1:438159:11877","explota los globos de la letra cu":"p1:450036:13917","explota los globos de la letra de":"p1:463953:12957","explota los globos de la letra e":"p1:476910:11037","explota los globos de la letra efe":"p1:487947:12357","explota los globos de la letra ele":"p1:500304:17037","explota los globos de la letra eme":"p1:517341:15237","explota los globos de la letra ene":"p1:532578:15717","explota los globos de la letra equis":"p1:548295:11397","explota los globos de la letra erre":"p1:559692:14157","explota los globos de la letra ese":"p1:573849:14397","explota los globos de la letra eñe":"p1:588246:14757","explota los globos de la letra ge":"p1:603003:11397","explota los globos de la letra hache":"p1:614400:12357","explota los globos de la letra i":"p1:626757:12357","explota los globos de la letra jota":"p1:639114:13437","explota los globos de la letra ka":"p1:652551:11757","explota los globos de la letra o":"p1:664308:11637","explota los globos de la letra pe":"p1:675945:13317","explota los globos de la letra te":"p1:689262:12717","explota los globos de la letra u":"p1:701979:12957","explota los globos de la letra uve":"p1:714936:14517","explota los globos de la letra uve doble":"p1:729453:12957","explota los globos de la letra ye":"p1:742410:10197","explota los globos de la letra zeta":"p1:752607:11037","eñe":"p1:763644:5157","eñe de piña":"p1:768801:10077","fantasma":"p1:778878:5277","fantasmas":"p1:784155:6357","fiesta":"p1:790512:4557","flan":"p1:795069:3477","flor":"p1:798546:2397","foto":"p1:800943:3477","fotos":"p1:804420:4797","fresa":"p1:809217:2757","fresas":"p1:811974:4797","fria":"p1:816771:2637","fuego":"p1:819408:2757","fuente":"p1:822165:4677","fuentes":"p1:826842:4557","furgoneta":"p1:831399:5997","furgonetas":"p1:837396:6237","gafas":"p1:843633:3717","galleta":"p1:847350:6117","galletas":"p1:853467:4197","gallina":"p1:857664:5157","gallinas":"p1:862821:3717","gallo":"p1:866538:2637","gallos":"p1:869175:4197","gamba":"p1:873372:3477","gambas":"p1:876849:3957","gasolina":"p1:880806:7557","gato":"p1:888363:3477","gatos":"p1:891840:4917","ge":"p1:896757:2157","ge de gato":"p1:898914:8037","gira":"p1:906951:3357","girasol":"p1:910308:6477","girasoles":"p1:916785:7557","globo":"p1:924342:3237","gorila":"p1:927579:3957","gorilas":"p1:931536:5637","gorra":"p1:937173:2757","gorras":"p1:939930:4077","gota":"p1:944007:2637","gotas":"p1:946644:4437","grande":"p1:951081:3237","grillo":"p1:954318:3597","grillos":"p1:957915:4917","guante":"p1:962832:4437","guantes":"p1:967269:4797","guindilla":"p1:972066:4557","guitarra":"p1:976623:4077","guitarras":"p1:980700:5397","gusano":"p1:986097:4917","gusanos":"p1:991014:4077","hache":"p1:995091:2637","hache de helado":"p1:997728:8997","hada":"p1:1006725:2517","hadas":"p1:1009242:3957","hamburguesa":"p1:1013199:5037","hamburguesas":"p1:1018236:5757","helado":"p1:1023993:5517","helados":"p1:1029510:4197","helicoptero":"p1:1033707:6117","helicopteros":"p1:1039824:6957","hoja":"p1:1046781:2397","hojas":"p1:1049178:3957","hormiga":"p1:1053135:4557","hormigas":"p1:1057692:4557","hospital":"p1:1062249:5277","hospitales":"p1:1067526:5637","huele":"p1:1073163:3597","huevo":"p1:1076760:2877","huevos":"p1:1079637:4557","i":"p1:1084194:1797","i de isla":"p1:1085991:6957","iglesia":"p1:1092948:4917","iglesias":"p2:0:4917","jabali":"p2:4917:3837","jabalies":"p2:8754:5757","jirafa":"p2:14511:3237","jirafas":"p2:17748:5397","jota":"p2:23145:2997","jota de jirafa":"p2:26142:8997","juega":"p2:35139:2757","juego":"p2:37896:3237","ka":"p2:41133:1677","ka de kiwi":"p2:42810:7317","kimono":"p2:50127:4557","kiwi":"p2:54684:2877","kiwis":"p2:57561:4557","koala":"p2:62118:4557","koalas":"p2:66675:3717","labios":"p2:70392:4077","ladra":"p2:74469:3957","lagarto":"p2:78426:5037","lagartos":"p2:83463:5757","lancha":"p2:89220:4677","lanchas":"p2:93897:4677","lapiz":"p2:98574:3717","lazo":"p2:102291:2757","lazos":"p2:105048:5277","leche":"p2:110325:3597","lee":"p2:113922:3477","lengua":"p2:117399:4197","leon":"p2:121596:3357","leopardo":"p2:124953:4917","leopardos":"p2:129870:6237","libro":"p2:136107:2997","limon":"p2:139104:3597","linterna":"p2:142701:4677","linternas":"p2:147378:5637","llave":"p2:153015:2397","llaves":"p2:155412:3957","llora":"p2:159369:4557","llueve":"p2:163926:4557","lluvia":"p2:168483:2877","lobo":"p2:171360:3837","lobos":"p2:175197:5637","luna":"p2:180834:3837","lunas":"p2:184671:5877","lupa":"p2:190548:3597","lupas":"p2:194145:6117","mago":"p2:200262:3477","magos":"p2:203739:5037","maiz":"p2:208776:3597","maletin":"p2:212373:5997","maletines":"p2:218370:7557","mama":"p2:225927:2157","mano":"p2:228084:4557","manos":"p2:232641:4677","manzana":"p2:237318:4197","mapa":"p2:241515:3837","mariposa":"p2:245352:5277","mariquita":"p2:250629:6117","martillo":"p2:256746:7077","martillos":"p2:263823:5397","mata":"p2:269220:3597","matasellos":"p2:272817:6117","maulla":"p2:278934:5037","medalla":"p2:283971:5397","medallas":"p2:289368:4557","media":"p2:293925:4077","medianoche":"p2:298002:5877","medio":"p2:303879:2997","mediodia":"p2:306876:4677","melocoton":"p2:311553:4557","melocotones":"p2:316110:6597","melon":"p2:322707:4197","melones":"p2:326904:5037","microfono":"p2:331941:6717","miel":"p2:338658:3117","mochila":"p2:341775:5757","mochilas":"p2:347532:4317","monedero":"p2:351849:6117","mono":"p2:357966:4677","monos":"p2:362643:4677","montaña":"p2:367320:5157","montañas":"p2:372477:6597","moto":"p2:379074:3717","movil":"p2:382791:3357","moviles":"p2:386148:4797","mucho":"p2:390945:3837","muge":"p2:394782:4317","mundo":"p2:399099:3837","murcielago":"p2:402936:5757","murcielagos":"p2:408693:7317","muñeca":"p2:416010:6477","muñecas":"p2:422487:4197","nada":"p2:426684:3597","naranja":"p2:430281:4197","naranjas":"p2:434478:5277","nariz":"p2:439755:3957","nieve":"p2:443712:2877","niña":"p2:446589:2877","niño":"p2:449466:2397","noche":"p2:451863:3597","nochebuena":"p2:455460:5757","nochevieja":"p2:461217:5757","noria":"p2:466974:2877","norias":"p2:469851:4197","nota":"p2:474048:3837","notas":"p2:477885:5877","nube":"p2:483762:3117","nubes":"p2:486879:5397","o":"p2:492276:4077","o de oso":"p2:496353:8997","ojo":"p2:505350:2757","ola":"p2:508107:2277","olas":"p2:510384:3957","ordenador":"p2:514341:4557","ordenadores":"p2:518898:6117","oreja":"p2:525015:4077","oso":"p2:529092:2637","osos":"p2:531729:4317","oveja":"p2:536046:4557","ovejas":"p2:540603:4077","ovni":"p2:544680:3237","ovnis":"p2:547917:3597","paella":"p2:551514:4317","pajaro":"p2:555831:3957","pajaros":"p2:559788:4197","paleta":"p2:563985:4197","palmera":"p2:568182:5037","palmeras":"p2:573219:5757","paloma":"p2:578976:6477","palomitas":"p2:585453:4917","pan":"p2:590370:2157","panda":"p2:592527:2757","pantalon":"p2:595284:5157","pantalones":"p2:600441:7797","papa":"p2:608238:2277","paraguas":"p2:610515:5157","pasea":"p2:615672:5517","pastel":"p2:621189:3357","pasteles":"p2:624546:4317","patata":"p2:628863:2757","patatas":"p2:631620:4077","patines":"p2:635697:5517","patinete":"p2:641214:5277","pato":"p2:646491:2637","patos":"p2:649128:3717","pavo":"p2:652845:2397","pavos":"p2:655242:4077","payaso":"p2:659319:4797","payasos":"p2:664116:4077","pe":"p2:668193:1557","pe de pato":"p2:669750:8157","pelo":"p2:677907:2037","pelota":"p2:679944:2757","pelotas":"p2:682701:4197","pepino":"p2:686898:2877","pepinos":"p2:689775:4317","pera":"p2:694092:2397","peras":"p2:696489:3237","perro":"p2:699726:3237","perros":"p2:702963:5757","pez":"p2:708720:1557","piano":"p2:710277:2637","pianos":"p2:712914:4797","pila":"p2:717711:2157","pilas":"p2:719868:4077","pinguino":"p2:723945:4677","pinguinos":"p2:728622:6237","pino":"p2:734859:2757","pinos":"p2:737616:6237","pinta":"p2:743853:2997","pintalabios":"p2:746850:5277","piruleta":"p2:752127:6357","pita":"p2:758484:2277","pizza":"p2:760761:2877","pizzas":"p2:763638:3837","piña":"p2:767475:2997","piñas":"p2:770472:5277","platano":"p2:775749:3357","playa":"p2:779106:2997","pluma":"p2:782103:2757","plumas":"p2:784860:3717","policia":"p2:788577:4797","pollito":"p2:793374:5037","pollitos":"p2:798411:3477","princesa":"p2:801888:4437","princesas":"p2:806325:6597","principe":"p2:812922:4557","principes":"p2:817479:5397","puente":"p2:822876:2997","puentes":"p2:825873:4677","puerta":"p2:830550:2877","puertas":"p2:833427:5037","pulpo":"p2:838464:2997","puntas":"p2:841461:3717","queso":"p2:845178:2517","quesos":"p2:847695:4197","radio":"p2:851892:2757","radios":"p2:854649:4917","ramo":"p2:859566:2877","ramos":"p2:862443:3957","rana":"p2:866400:3717","ranas":"p2:870117:4917","rasca":"p2:875034:3357","rascacielos":"p2:878391:5637","rata":"p2:884028:3357","ratas":"p2:887385:5157","raton":"p2:892542:3837","rayo":"p2:896379:3117","rayos":"p2:899496:4917","regalo":"p2:904413:5397","regalos":"p2:909810:4677","regla":"p2:914487:3357","reglas":"p2:917844:4317","reloj":"p2:922161:3117","relojes":"p2:925278:5757","repasa con el dedo la a":"p2:931035:12117","repasa con el dedo la be":"p2:943152:9117","repasa con el dedo la ce":"p2:952269:11037","repasa con el dedo la cu":"p2:963306:11277","repasa con el dedo la de":"p2:974583:8877","repasa con el dedo la e":"p2:983460:10317","repasa con el dedo la efe":"p2:993777:10077","repasa con el dedo la ele":"p2:1003854:11997","repasa con el dedo la eme":"p2:1015851:11277","repasa con el dedo la ene":"p2:1027128:11997","repasa con el dedo la equis":"p2:1039125:10917","repasa con el dedo la erre":"p2:1050042:11397","repasa con el dedo la ese":"p2:1061439:10677","repasa con el dedo la eñe":"p2:1072116:12237","repasa con el dedo la ge":"p2:1084353:10917","repasa con el dedo la hache":"p3:0:10557","repasa con el dedo la i":"p3:10557:10317","repasa con el dedo la jota":"p3:20874:10797","repasa con el dedo la ka":"p3:31671:10437","repasa con el dedo la o":"p3:42108:12357","repasa con el dedo la pe":"p3:54465:12957","repasa con el dedo la te":"p3:67422:10437","repasa con el dedo la u":"p3:77859:10917","repasa con el dedo la uve":"p3:88776:11877","repasa con el dedo la uve doble":"p3:100653:13437","repasa con el dedo la ye":"p3:114090:10317","repasa con el dedo la zeta":"p3:124407:10557","rie":"p3:134964:2517","rinoceronte":"p3:137481:6117","rinocerontes":"p3:143598:7437","risa":"p3:151035:2877","robot":"p3:153912:4077","rojo":"p3:157989:3357","rompe":"p3:161346:3237","rompecabezas":"p3:164583:6117","rompeolas":"p3:170700:6477","ropa":"p3:177177:2637","rosa":"p3:179814:3357","rosas":"p3:183171:5037","ruge":"p3:188208:3957","saca":"p3:192165:2877","sacapuntas":"p3:195042:5517","sale":"p3:200559:4677","sandalia":"p3:205236:6717","sandalias":"p3:211953:6597","sandia":"p3:218550:4437","sandias":"p3:222987:12117","sarten":"p3:235104:4557","sartenes":"p3:239661:4677","saxofon":"p3:244338:4917","saxofones":"p3:249255:6117","sellos":"p3:255372:3837","semaforo":"p3:259209:6597","serpiente":"p3:265806:5517","serpientes":"p3:271323:7197","seta":"p3:278520:3717","setas":"p3:282237:5517","silla":"p3:287754:3237","sillas":"p3:290991:4917","sirena":"p3:295908:4197","sofa":"p3:300105:3597","sol":"p3:303702:2277","sombrero":"p3:305979:5037","sombreros":"p3:311016:5397","sopa":"p3:316413:3597","taco":"p3:320010:2157","tacon":"p3:322167:3717","tacones":"p3:325884:5157","tacos":"p3:331041:3957","tambor":"p3:334998:5637","tambores":"p3:340635:5517","tarta":"p3:346152:2757","tartas":"p3:348909:3837","taxi":"p3:352746:2517","taxis":"p3:355263:3357","taza":"p3:358620:2877","tazas":"p3:361497:4677","te":"p3:366174:1677","te de tomate":"p3:367851:6837","tele":"p3:374688:2037","telefono":"p3:376725:4797","teles":"p3:381522:3717","tenedor":"p3:385239:4077","tenedores":"p3:389316:4797","tenis":"p3:394113:3957","tiburon":"p3:398070:4317","tiburones":"p3:402387:5637","tienda":"p3:408024:3117","tiendas":"p3:411141:3837","tigre":"p3:414978:2517","tijera":"p3:417495:5157","tijeras":"p3:422652:4077","tiovivo":"p3:426729:4557","tomate":"p3:431286:2757","tomates":"p3:434043:4677","tormenta":"p3:438720:5277","tornillo":"p3:443997:5637","tornillos":"p3:449634:3957","toro":"p3:453591:2157","toros":"p3:455748:3957","tortitas":"p3:459705:4557","tortuga":"p3:464262:4077","tortugas":"p3:468339:5637","trabaja":"p3:473976:4557","tractor":"p3:478533:4317","tractores":"p3:482850:5277","trebol":"p3:488127:3597","treboles":"p3:491724:4677","tren":"p3:496401:2157","tres":"p3:498558:2997","trigo":"p3:501555:2997","trineo":"p3:504552:3717","trineos":"p3:508269:4437","trompeta":"p3:512706:3957","trompetas":"p3:516663:5277","tulipan":"p3:521940:6477","tulipanes":"p3:528417:5397","u":"p3:533814:1437","u de uva":"p3:535251:6717","un":"p3:541968:2157","una":"p3:544125:2277","unicornio":"p3:546402:5517","unicornios":"p3:551919:7797","uva":"p3:559716:2757","uvas":"p3:562473:4077","uve":"p3:566550:2397","uve de vaca":"p3:568947:6837","uve doble":"p3:575784:4317","uve doble de wifi":"p3:580101:8517","uña":"p3:588618:2397","uñas":"p3:591015:3837","vaca":"p3:594852:2997","vacas":"p3:597849:5157","vampiro":"p3:603006:5157","vampiros":"p3:608163:6117","vela":"p3:614280:2997","venido":"p3:617277:3597","vestido":"p3:620874:4197","vestidos":"p3:625071:5397","video":"p3:630468:3957","videojuego":"p3:634425:5517","vieja":"p3:639942:3597","violin":"p3:643539:3717","violines":"p3:647256:5037","volcan":"p3:652293:3717","volcanes":"p3:656010:5637","vuela":"p3:661647:4677","ye":"p3:666324:2277","ye de yate":"p3:668601:7317","zanahoria":"p3:675918:5397","zanahorias":"p3:681315:7917","zapatilla":"p3:689232:6237","zapato":"p3:695469:2877","zapatos":"p3:698346:3957","zeta":"p3:702303:2877","zeta de zapato":"p3:705180:7197","zorro":"p3:712377:2877","zorros":"p3:715254:4797","__n":757,"__packs":4};
+/* ¡A leer con Rudi! · Datos · Creado por Rodolfo López Martínez · CC BY-NC 4.0 */
+var ALL = 'abcdefghijklmnñopqrstuvwxyz'.split('');
+var NAMES = { a:'a', b:'be', c:'ce', d:'de', e:'e', f:'efe', g:'ge', h:'hache', i:'i', j:'jota', k:'ka', l:'ele', m:'eme', n:'ene', 'ñ':'eñe', o:'o', p:'pe', q:'cu', r:'erre', s:'ese', t:'te', u:'u', v:'uve', w:'uve doble', x:'equis', y:'ye', z:'zeta' };
+var HINT = {
+  a:['avión','✈️'], b:['ballena','🐳'], c:['casa','🏠'], d:['dado','🎲'], e:['elefante','🐘'], f:['fresa','🍓'],
+  g:['gato','🐱'], h:['helado','🍦'], i:['isla','🏝️'], j:['jirafa','🦒'], k:['kiwi','🥝'], l:['luna','🌙'],
+  m:['mono','🐵'], n:['nube','☁️'], 'ñ':['piña','🍍'], o:['oso','🐻'], p:['pato','🦆'], q:['queso','🧀'],
+  r:['ratón','🐭'], s:['sol','☀️'], t:['tomate','🍅'], u:['uva','🍇'], v:['vaca','🐮'], w:['wifi','📶'],
+  x:['taxi','🚕'], y:['yate','🛥️'], z:['zapato','👞']
+};
+var LOOKALIKE = { b:'dpq', d:'bpq', p:'qbd', q:'pgd', m:'nw', n:'mñu', 'ñ':'nm', u:'nv', i:'lj', l:'it', j:'ig', g:'qj', e:'aoc', a:'oe', o:'ac', c:'oe', v:'uwy', w:'vm', f:'tl', t:'fl', h:'nk', r:'nt', s:'z', z:'s', k:'hx', x:'kz', y:'vj' };
+
+var FAM = {
+  m:['ma','me','mi','mo','mu'], p:['pa','pe','pi','po','pu'], l:['la','le','li','lo','lu'], s:['sa','se','si','so','su'],
+  t:['ta','te','ti','to','tu'], n:['na','ne','ni','no','nu'], d:['da','de','di','do','du'], f:['fa','fe','fi','fo','fu'],
+  b:['ba','be','bi','bo','bu'], r:['ra','re','ri','ro','ru'], c:['ca','co','cu'], v:['va','ve','vi','vo','vu'],
+  j:['ja','je','ji','jo','ju'], g:['ga','go','gu'], z:['za','zo','zu'], 'ñ':['ña','ñe','ñi','ño','ñu'],
+  ch:['cha','che','chi','cho','chu'], ll:['lla','lle','lli','llo','llu'], qu:['que','qui'], ce:['ce','ci'], gu:['gue','gui']
+};
+var SYL_LEVELS = [['m','p'], ['m','p','l','s'], ['m','p','l','s','t','n','d'], ['m','p','l','s','t','n','d','f','b','r','c'],
+  ['m','p','l','s','t','n','d','f','b','r','c','v','j','g','z','ñ'], ['m','p','l','s','t','n','d','f','b','r','c','v','j','g','z','ñ','ch','ll','qu','ce','gu']];
+
+/* Banco de palabras con sílabas directas (lector básico, iniciación) */
+var W = [
+  ['mano','✋','ma-no'], ['mono','🐵','mo-no'], ['mapa','🗺️','ma-pa'], ['moto','🏍️','mo-to'], ['mago','🧙','ma-go'],
+  ['pato','🦆','pa-to'], ['pera','🍐','pe-ra'], ['pino','🌲','pi-no'], ['piña','🍍','pi-ña'], ['perro','🐶','pe-rro'],
+  ['luna','🌙','lu-na'], ['lupa','🔍','lu-pa'], ['lobo','🐺','lo-bo'], ['leche','🥛','le-che'],
+  ['seta','🍄','se-ta'], ['sopa','🍲','so-pa'], ['sofá','🛋️','so-fá'], ['taza','☕','ta-za'],
+  ['nube','☁️','nu-be'], ['nota','🎵','no-ta'], ['dado','🎲','da-do'], ['dedo','☝️','de-do'],
+  ['gato','🐱','ga-to'], ['casa','🏠','ca-sa'], ['vaca','🐮','va-ca'], ['cama','🛏️','ca-ma'], ['coco','🥥','co-co'],
+  ['copa','🏆','co-pa'], ['cara','🙂','ca-ra'], ['bota','👢','bo-ta'], ['bebé','👶','be-bé'], ['boca','👄','bo-ca'],
+  ['bici','🚲','bi-ci'], ['búho','🦉','bú-ho'], ['rana','🐸','ra-na'], ['rosa','🌹','ro-sa'], ['rata','🐀','ra-ta'],
+  ['oso','🐻','o-so'], ['uva','🍇','u-va'], ['ojo','👁️','o-jo'], ['hada','🧚','ha-da'], ['kiwi','🥝','ki-wi'],
+  ['vela','🕯️','ve-la'], ['foto','📷','fo-to'], ['queso','🧀','que-so'], ['huevo','🥚','hue-vo'], ['piano','🎹','pia-no'],
+  ['fuego','🔥','fue-go'], ['lazo','🎀','la-zo'], ['ropa','👚','ro-pa'], ['taco','🌮','ta-co'], ['ola','🌊','o-la'],
+  ['hoja','🍃','ho-ja'], ['rayo','⚡','ra-yo'], ['gota','💧','go-ta'], ['toro','🐂','to-ro'], ['pavo','🦃','pa-vo'],
+  ['beso','💋','be-so'], ['risa','😂','ri-sa'], ['tele','📺','te-le'], ['radio','📻','ra-dio'], ['pila','🔋','pi-la'],
+  ['baño','🛁','ba-ño'], ['llave','🔑','lla-ve'], ['lluvia','🌧️','llu-via'], ['silla','💺','si-lla'], ['nieve','❄️','nie-ve'],
+  ['zorro','🦊','zo-rro'], ['coche','🚗','co-che'], ['taxi','🚕','ta-xi'], ['gorra','🧢','go-rra'], ['niña','👧','ni-ña'],
+  ['niño','👦','ni-ño'], ['mamá','👩','ma-má'], ['papá','👨','pa-pá'], ['uña','💅','u-ña'], ['ducha','🚿','du-cha'],
+  ['pelo','💇','pe-lo'], ['gallo','🐓','ga-llo'], ['caja','📦','ca-ja'], ['ramo','💐','ra-mo'], ['noria','🎡','no-ria'],
+  ['diana','🎯','dia-na'],
+  ['tomate','🍅','to-ma-te'], ['pelota','⚽','pe-lo-ta'], ['patata','🥔','pa-ta-ta'], ['pepino','🥒','pe-pi-no'],
+  ['camisa','👕','ca-mi-sa'], ['jirafa','🦒','ji-ra-fa'], ['zapato','👞','za-pa-to'], ['paloma','🕊️','pa-lo-ma'],
+  ['tijera','✂️','ti-je-ra'], ['helado','🍦','he-la-do'], ['galleta','🍪','ga-lle-ta'], ['cereza','🍒','ce-re-za'],
+  ['abeja','🐝','a-be-ja'], ['araña','🕷️','a-ra-ña'], ['pájaro','🐦','pá-ja-ro'], ['caballo','🐴','ca-ba-llo'],
+  ['gallina','🐔','ga-lli-na'], ['pollito','🐥','po-lli-to'], ['regalo','🎁','re-ga-lo'], ['corona','👑','co-ro-na'],
+  ['cohete','🚀','co-he-te'], ['conejo','🐰','co-ne-jo'], ['ballena','🐳','ba-lle-na'], ['camello','🐫','ca-me-llo'],
+  ['koala','🐨','ko-a-la'], ['payaso','🤡','pa-ya-so'], ['cuchara','🥄','cu-cha-ra'], ['medalla','🏅','me-da-lla'],
+  ['botella','🧴','bo-te-lla'], ['muñeca','🎎','mu-ñe-ca'], ['patines','⛸️','pa-ti-nes'], ['oveja','🐑','o-ve-ja'],
+  ['gusano','🐛','gu-sa-no'], ['anillo','💍','a-ni-llo'], ['abuela','👵','a-bue-la'], ['abuelo','👴','a-bue-lo'],
+  ['oreja','👂','o-re-ja'], ['dinero','💰','di-ne-ro'], ['erizo','🦔','e-ri-zo'], ['canoa','🛶','ca-no-a'],
+  ['paella','🥘','pa-e-lla'], ['boniato','🍠','bo-nia-to'], ['paleta','🎨','pa-le-ta'], ['kimono','👘','ki-mo-no'],
+  ['bikini','👙','bi-ki-ni'], ['cometa','☄️','co-me-ta'], ['tiovivo','🎠','tio-vi-vo'], ['colegio','🏫','co-le-gio'],
+  ['sirena','🧜','si-re-na'],
+  ['mariposa','🦋','ma-ri-po-sa'], ['teléfono','☎️','te-lé-fo-no'], ['caramelo','🍬','ca-ra-me-lo'], ['piruleta','🍭','pi-ru-le-ta'],
+  ['chocolate','🍫','cho-co-la-te'], ['aguacate','🥑','a-gua-ca-te'], ['micrófono','🎤','mi-cró-fo-no'], ['semáforo','🚦','se-má-fo-ro'],
+  ['mariquita','🐞','ma-ri-qui-ta'], ['zapatilla','👟','za-pa-ti-lla'], ['monedero','👛','mo-ne-de-ro'], ['patinete','🛴','pa-ti-ne-te'],
+  ['gasolina','⛽','ga-so-li-na']
+];
+/* Palabras con sílabas trabadas o cerradas (más difíciles) */
+var X = [
+  ['sol','☀️'], ['pez','🐟'], ['flor','🌸'], ['tren','🚂'], ['ratón','🐭'], ['león','🦁'], ['limón','🍋'], ['barco','⛵'],
+  ['globo','🎈'], ['árbol','🌳'], ['libro','📖'], ['lápiz','✏️'], ['estrella','⭐'], ['nariz','👃'], ['gafas','👓'], ['tigre','🐯'],
+  ['cerdo','🐷'], ['pulpo','🐙'], ['delfín','🐬'], ['cangrejo','🦀'], ['panda','🐼'], ['robot','🤖'], ['manzana','🍎'], ['plátano','🍌'],
+  ['sandía','🍉'], ['fresa','🍓'], ['zanahoria','🥕'], ['tarta','🎂'], ['pan','🍞'], ['caracol','🐌'], ['tortuga','🐢'], ['dinosaurio','🦕'],
+  ['cocodrilo','🐊'], ['reloj','⌚'], ['guitarra','🎸'], ['tambor','🥁'], ['mochila','🎒'], ['castillo','🏰'], ['bombero','🚒'], ['cabra','🐐'],
+  ['tiburón','🦈'], ['pingüino','🐧'], ['dragón','🐉'], ['unicornio','🦄'], ['hormiga','🐜'], ['lagarto','🦎'], ['serpiente','🐍'], ['calamar','🦑'],
+  ['gamba','🦐'], ['concha','🐚'], ['arcoíris','🌈'], ['volcán','🌋'], ['montaña','⛰️'], ['playa','🏖️'], ['tienda','⛺'], ['puente','🌉'],
+  ['camión','🚚'], ['autobús','🚌'], ['avión','✈️'], ['palomitas','🍿'], ['pizza','🍕'], ['miel','🍯'], ['naranja','🍊'], ['melocotón','🍑'],
+  ['maíz','🌽'], ['castaña','🌰'], ['brócoli','🥦'], ['bocadillo','🥪'], ['calcetín','🧦'], ['vestido','👗'], ['regla','📏'], ['carta','✉️'],
+  ['trompeta','🎺'], ['violín','🎻'], ['princesa','👸'], ['fantasma','👻'], ['corazón','❤️'], ['puerta','🚪'], ['bombilla','💡'], ['campana','🔔'],
+  ['tulipán','🌷'], ['girasol','🌻'], ['palmera','🌴'], ['cactus','🌵'], ['ardilla','🐿️'], ['grillo','🦗'], ['escorpión','🦂'], ['murciélago','🦇'],
+  ['águila','🦅'], ['jabalí','🐗'], ['leopardo','🐆'], ['cebra','🦓'], ['gorila','🦍'], ['elefante','🐘'], ['rinoceronte','🦏'], ['búfalo','🐃'],
+  ['carnero','🐏'], ['ciervo','🦌'], ['berenjena','🍆'], ['guindilla','🌶️'], ['cacahuete','🥜'], ['cruasán','🥐'], ['tortitas','🥞'], ['hamburguesa','🍔'],
+  ['sartén','🍳'], ['ensalada','🥗'], ['arroz','🍚'], ['espagueti','🍝'], ['donut','🍩'], ['pastel','🍰'], ['flan','🍮'], ['biberón','🍼'],
+  ['melón','🍈'], ['tenis','🎾'], ['arco','🏹'], ['esquí','🎿'], ['trineo','🛷'], ['circo','🎪'], ['saxofón','🎷'], ['móvil','📱'],
+  ['ordenador','💻'], ['linterna','🔦'], ['cuaderno','📓'], ['pluma','✒️'], ['chincheta','📌'], ['clip','📎'], ['martillo','🔨'], ['tornillo','🔩'],
+  ['escudo','🛡️'], ['fiesta','🎉'], ['despertador','⏰'], ['buzón','📮'], ['candado','🔒'], ['corbata','👔'], ['pantalón','👖'], ['bolso','👜'],
+  ['tacón','👠'], ['sandalia','👡'], ['casco','⛑️'], ['maletín','💼'], ['bufanda','🧣'], ['guante','🧤'], ['trébol','🍀'], ['trigo','🌾'],
+  ['tormenta','⛈️'], ['mundo','🌍'], ['policía','🚓'], ['ambulancia','🚑'], ['furgoneta','🚐'], ['tractor','🚜'], ['helicóptero','🚁'], ['lancha','🚤'],
+  ['ancla','⚓'], ['ovni','🛸'], ['fuente','⛲'], ['hospital','🏥'], ['iglesia','⛪'], ['príncipe','🤴'], ['vampiro','🧛'], ['lengua','👅'],
+  ['brazo','💪'], ['aplauso','👏'], ['sombrero','🎩'], ['paraguas','☂️'], ['tenedor','🍴']
+];
+var MONO = ['sol','pez','flor','tren','pan','miel','clip'];
+
+/* LECTOR INTERMEDIO */
+var COMPOUNDS = [
+  ['girasol','🌻','gira','sol'], ['rompecabezas','🧩','rompe','cabezas'], ['sacapuntas','✏️','saca','puntas'],
+  ['cumpleaños','🎂','cumple','años'], ['mediodía','🕛','medio','día'], ['rascacielos','🏙️','rasca','cielos'],
+  ['pintalabios','💄','pinta','labios'], ['altavoz','🔊','alta','voz'], ['mapamundi','🗺️','mapa','mundi'],
+  ['aguanieve','🌨️','agua','nieve'], ['portafolios','💼','porta','folios'], ['lavaplatos','🍽️','lava','platos'],
+  ['hierbabuena','🌿','hierba','buena'], ['cascanueces','🥜','casca','nueces'], ['cuentagotas','💧','cuenta','gotas'],
+  ['limpiabotas','👞','limpia','botas'], ['tocadiscos','💿','toca','discos'], ['saltamontes','🦗','salta','montes'],
+  ['cubrecama','🛏️','cubre','cama']
+];
+var PHRASES = [
+  ['el gato duerme','🐱💤'], ['la vaca come','🐮🌿'], ['el pez nada','🐟🌊'], ['el sol brilla','☀️✨'], ['el perro corre','🐶💨'],
+  ['mamá lee','👩📖'], ['papá canta','👨🎤'], ['el bebé llora','👶😢'], ['el pájaro vuela','🐦☁️'], ['la luna sale','🌙⭐'],
+  ['el niño come','👦🍎'], ['la abuela cose','👵🧵'], ['llueve mucho','🌧️☔'], ['la flor huele','🌸👃'], ['el oso duerme','🐻💤'],
+  ['la abeja vuela','🐝🌸'], ['el mono come','🐵🍌'], ['un globo rojo','🎈'], ['una flor amarilla','🌻'], ['el coche corre','🚗💨'],
+  ['la nieve es fría','❄️🥶'], ['el elefante es grande','🐘'], ['la niña salta','👧🤸'], ['el tren pita','🚂📢'], ['la rana salta','🐸💨']
+];
+var TRUTH_I = [
+  ['El pez nada',1,'🐟'], ['La vaca vuela',0,'🐮'], ['El sol es frío',0,'☀️'], ['La nieve es blanca',1,'❄️'], ['El perro ladra',1,'🐶'],
+  ['El gato ladra',0,'🐱'], ['La luna sale de noche',1,'🌙'], ['Los peces andan',0,'🐟'], ['El fuego quema',1,'🔥'], ['Las vacas dan leche',1,'🐮'],
+  ['Los pájaros tienen plumas',1,'🐦'], ['El elefante es pequeño',0,'🐘'], ['La hormiga es grande',0,'🐜'], ['El limón es dulce',0,'🍋'],
+  ['El caramelo es dulce',1,'🍬'], ['Los coches tienen ruedas',1,'🚗'], ['La rana es verde',1,'🐸'], ['El tomate es azul',0,'🍅'],
+  ['Las flores huelen bien',1,'🌸'], ['Los gatos vuelan',0,'🐱'], ['El agua moja',1,'💧'], ['La noche es oscura',1,'🌙'],
+  ['El caracol es rápido',0,'🐌'], ['La tortuga es lenta',1,'🐢']
+];
+var NUMS = [['dos',2], ['tres',3], ['cuatro',4]];
+
+/* LECTOR AVANZADO */
+var CLOZE = [
+  ['El perro ___ la pelota.','muerde',['vuela','lee']], ['Me lavo los dientes con el ___.','cepillo',['zapato','plato']],
+  ['Por la noche salen la luna y las ___.','estrellas',['manzanas','sillas']], ['Bebo agua en un ___.','vaso',['libro','gorro']],
+  ['El pájaro hace su nido en el ___.','árbol',['río','coche']], ['Cuando llueve abro el ___.','paraguas',['armario','helado']],
+  ['La gallina pone ___.','huevos',['zapatos','flores']], ['Los peces viven en el ___.','agua',['cielo','bosque']],
+  ['Me pongo el sombrero en la ___.','cabeza',['mano','rodilla']], ['La abeja hace ___.','miel',['leche','pan']],
+  ['Para cortar el papel uso las ___.','tijeras',['cucharas','gafas']], ['El bombero apaga el ___.','fuego',['agua','sol']],
+  ['La vaca nos da ___.','leche',['huevos','lana']], ['La oveja nos da ___.','lana',['leche','miel']],
+  ['El cartero trae las ___.','cartas',['nubes','piedras']], ['Para ver mejor me pongo las ___.','gafas',['botas','uvas']],
+  ['Duermo en mi ___.','cama',['mesa','mochila']], ['El tren va por las ___.','vías',['nubes','olas']],
+  ['Los niños van al ___ a aprender.','colegio',['zoo','mar']], ['En verano hace mucho ___.','calor',['frío','viento']],
+  ['El mono come un ___.','plátano',['zapato','libro']], ['Escribo con un ___.','lápiz',['tenedor','peine']]
+];
+var ORDER = [
+  ['Mi gato duerme en el sofá','🐱🛋️'], ['La niña come una manzana','👧🍎'], ['El perro corre por el parque','🐶🌳'],
+  ['Mamá prepara una tarta rica','👩🎂'], ['Los pájaros cantan por la mañana','🐦🎵'], ['El sol brilla en el cielo','☀️'],
+  ['Mi abuelo lee el periódico','👴📰'], ['Hoy vamos a la playa','🏖️'], ['El tren llega a la estación','🚂'],
+  ['La mariposa vuela entre las flores','🦋🌸'], ['Papá conduce un coche rojo','👨🚗'], ['El bebé duerme en su cuna','👶💤'],
+  ['Las vacas comen hierba verde','🐮🌿'], ['Me gusta jugar con mis amigos','🤸👫'], ['El pez nada en el mar','🐟🌊'],
+  ['Mi hermana pinta un dibujo','👧🎨'], ['La luna brilla por la noche','🌙✨'], ['El mono come un plátano','🐵🍌'],
+  ['El domingo vamos al cine','🎬'], ['La abeja busca flores','🐝🌸']
+];
+var PICK = [
+  ['La niña come una manzana','👧🍎',['👦🍎','👧🍌']], ['El niño juega con la pelota','👦⚽',['👧⚽','👦🎈']],
+  ['El gato duerme en la cama','🐱🛏️',['🐶🛏️','🐱🛋️']], ['El perro bebe agua','🐶💧',['🐱💧','🐶🍖']],
+  ['La abuela lee un libro','👵📖',['👴📖','👵📺']], ['El abuelo toca la guitarra','👴🎸',['👵🎸','👴🥁']],
+  ['Papá conduce un coche','👨🚗',['👩🚗','👨🚲']], ['Mamá monta en bici','👩🚲',['👨🚲','👩🛴']],
+  ['El pájaro está en el árbol','🐦🌳',['🐦🏠','🐱🌳']], ['La rana está en el agua','🐸🌊',['🐸🌳','🐟🌊']],
+  ['El bebé toma el biberón','👶🍼',['👶🍪','👧🍼']], ['Llueve y llevo paraguas','🌧️☂️',['☀️☂️','🌧️👓']],
+  ['Nieva en la montaña','❄️⛰️',['❄️🏖️','☀️⛰️']], ['El mono come un plátano','🐵🍌',['🐵🍎','🐻🍌']],
+  ['La niña tiene un globo','👧🎈',['👦🎈','👧🎁']], ['El niño se ducha','👦🚿',['👧🚿','👦🛏️']],
+  ['La vaca come hierba','🐮🌿',['🐑🌿','🐮🌸']], ['Mi amigo come pizza','👦🍕',['👦🍔','👧🍕']]
+];
+var TRUTH_A = [
+  ['Los pingüinos viven donde hace mucho frío',1,'🐧'], ['Las ballenas son peces pequeños',0,'🐳'],
+  ['Las plantas necesitan agua para crecer',1,'🌱'], ['Por la noche brilla el sol',0,'🌙'], ['Las abejas fabrican miel',1,'🐝'],
+  ['Los cocodrilos vuelan por el cielo',0,'🐊'], ['El invierno es más frío que el verano',1,'❄️'], ['Los bomberos apagan incendios',1,'🚒'],
+  ['Las jirafas tienen el cuello corto',0,'🦒'], ['Una semana tiene siete días',1,'📅'], ['Los huevos de gallina son de chocolate',0,'🥚'],
+  ['Las mariposas antes eran orugas',1,'🦋'], ['El hielo se derrite con el calor',1,'💧'], ['Las arañas tienen ocho patas',1,'🕷️'],
+  ['El médico cura a los enfermos',1,'🏥'], ['Los peces respiran fuera del agua',0,'🐟'], ['Las tortugas llevan su casa a cuestas',1,'🐢'],
+  ['El tren va por el mar',0,'🚂'], ['Los gatos dicen guau',0,'🐱'], ['Los murciélagos duermen boca arriba',0,'🦇']
+];
+var RIDDLES = [
+  ['Soy amarillo, doy calor y salgo de día. ¿Quién soy?','☀️','el sol',['🌙','⭐']],
+  ['Tengo trompa larga y orejas enormes. ¿Quién soy?','🐘','el elefante',['🦒','🐭']],
+  ['Doy leche y digo muuu. ¿Quién soy?','🐮','la vaca',['🐷','🐔']],
+  ['Soy verde, salto mucho y vivo en el estanque. ¿Quién soy?','🐸','la rana',['🐢','🐟']],
+  ['Soy roja por dentro, verde por fuera y tengo pepitas negras. ¿Quién soy?','🍉','la sandía',['🍎','🥝']],
+  ['Tengo agujas pero no sé coser. Te digo la hora. ¿Quién soy?','⌚','el reloj',['✂️','📌']],
+  ['Me abres cuando llueve. ¿Quién soy?','☂️','el paraguas',['🚪','📖']],
+  ['Tengo hojas pero no soy un árbol. Me puedes leer. ¿Quién soy?','📖','el libro',['🌳','🍃']],
+  ['Vuelo de flor en flor y hago miel. ¿Quién soy?','🐝','la abeja',['🦋','🐦']],
+  ['Tengo el cuello muy largo y manchas. ¿Quién soy?','🦒','la jirafa',['🐘','🐴']],
+  ['Llevo mi casa a cuestas y voy muy despacio. ¿Quién soy?','🐌','el caracol',['🐇','🐟']],
+  ['Soy blanca, fría y caigo en invierno. ¿Quién soy?','❄️','la nieve',['☁️','🌧️']],
+  ['Tengo cuatro ruedas y llevo personas. ¿Quién soy?','🚗','el coche',['🚲','✈️']],
+  ['Brillo de noche en el cielo y cambio de forma. ¿Quién soy?','🌙','la luna',['☀️','💡']],
+  ['Soy el rey de la selva y tengo melena. ¿Quién soy?','🦁','el león',['🐯','🐻']],
+  ['Me pones en los pies para caminar. ¿Quién soy?','👟','la zapatilla',['🧤','🎩']],
+  ['Soy naranja, crezco bajo tierra y le gusto al conejo. ¿Quién soy?','🥕','la zanahoria',['🍊','🌽']],
+  ['Tengo ocho brazos y vivo en el mar. ¿Quién soy?','🐙','el pulpo',['🦀','🐳']],
+  ['Soy dulce, fría y me comes en cucurucho. ¿Quién soy?','🍦','el helado',['🍰','🍫']]
+];
+
+var STICKERS = ['🦄','🐶','🦋','🐬','🌈','🚀','🍦','🎈','🐢','🦊','🐼','🐞','🌟','🎀','🐙','🦖','🍓','🐥','🎠','🐳','🌻','🍭','🦁','🐨',
+  '🐱','🐰','🐸','🐧','🦉','🐝','🍩','🧁','🍉','🌺','🌙','⭐','🎨','🎸','⚽','🏰','🚂','🎪','🐠','🦒','🐘','🐯','🐵','🦓','🍀','🌷','🎁','👑'];
+var PRAISE = ['¡Muy bien!', '¡Genial!', '¡Fenomenal!', '¡Eso es!', '¡Bravo!', '¡Qué bien lo haces!', '¡Estupendo!', '¡Perfecto!', '¡Lo has clavado!', '¡Superbién!', '¡Increíble!', '¡Así se hace!'];
+var TRY = ['¡Casi! Prueba otra vez', 'Uy, esa no. ¡Otra vez!', 'Mira bien y prueba otra vez', '¡Tú puedes! Prueba otra'];
+
+/* Frases fijas que dice la voz (para el guion de grabación) */
+var LINES = {
+  welcome: '¡Hola! Soy Rudi. ¿Cómo te llamas?',
+  hello: '¡Hola!',
+  chooseLevel: 'Elige tu nivel',
+  chooseGame: 'Elige un juego',
+  letsPlay: '¡A jugar!',
+  won: '¡Lo has conseguido! Has ganado una pegatina',
+  whereIs: '¿Dónde está la',
+  touch: 'Toca',
+  whatSays: '¿Qué pone aquí?',
+  build: 'Forma la palabra',
+  startsWith: '¿Con qué letra empieza?',
+  howManyClaps: '¿Cuántas palmadas tiene?',
+  trace: 'Repasa con el dedo la',
+  findPairs: 'Busca las parejas',
+  popBalloons: 'Explota los globos de la letra',
+  pairUpper: 'mayúscula. ¿Cuál es su minúscula?',
+  pairLower: 'minúscula. ¿Cuál es su mayúscula?',
+  readChoose: 'Lee y elige el dibujo',
+  trueFalse: '¿Verdad o mentira?',
+  isTrue: '¡Es verdad!', isFalse: '¡Es mentira!',
+  orderIt: 'Ordena las palabras',
+  complete: 'Completa la frase',
+  riddle: 'Adivina, adivinanza',
+  slow: 'Hola, así hablo ahora'
+};
+
+/* =================== GENERADOR DE FRASES (siempre con sentido) =================== */
+var SUBJ = [
+  { t:'el niño', e:'👦', k:'kid' }, { t:'la niña', e:'👧', k:'kid' }, { t:'mamá', e:'👩', k:'adult' }, { t:'papá', e:'👨', k:'adult' },
+  { t:'la abuela', e:'👵', k:'adult' }, { t:'el abuelo', e:'👴', k:'adult' }, { t:'el bebé', e:'👶', k:'baby' },
+  { t:'el perro', e:'🐶', k:'dog' }, { t:'el gato', e:'🐱', k:'cat' }, { t:'el pájaro', e:'🐦', k:'bird' }, { t:'el pez', e:'🐟', k:'fish' },
+  { t:'la vaca', e:'🐮', k:'cow' }, { t:'el mono', e:'🐵', k:'monkey' }, { t:'la rana', e:'🐸', k:'frog' }, { t:'el oso', e:'🐻', k:'bear' },
+  { t:'la abeja', e:'🐝', k:'insect' }, { t:'el pato', e:'🦆', k:'duck' }, { t:'el caballo', e:'🐴', k:'horse' }, { t:'el león', e:'🦁', k:'lion' },
+  { t:'el conejo', e:'🐰', k:'rabbit' }, { t:'la oveja', e:'🐑', k:'sheep' }, { t:'la mariposa', e:'🦋', k:'insect' }, { t:'el delfín', e:'🐬', k:'dolphin' },
+  { t:'el elefante', e:'🐘', k:'elephant' }, { t:'la gallina', e:'🐔', k:'hen' }
+];
+var VERB = { duerme:'💤', come:'🍽️', salta:'🤸', corre:'💨', nada:'🌊', vuela:'☁️', canta:'🎵', juega:'⚽', llora:'😢', 'ríe':'😂', baila:'💃',
+  ladra:'🔊', 'maúlla':'🔊', ruge:'📢', muge:'🔊', croa:'🔊', lee:'📖', pinta:'🎨', cocina:'🍳', cose:'🧵', pasea:'🌳', escribe:'✏️', trabaja:'💼', cacarea:'🔊' };
+var CAN = {
+  kid: ['duerme','come','salta','corre','nada','canta','juega','llora','ríe','baila','lee','pinta','pasea','escribe'],
+  adult: ['duerme','come','corre','nada','canta','baila','lee','pinta','cocina','pasea','escribe','trabaja','ríe'],
+  baby: ['duerme','come','llora','ríe','juega'], dog: ['duerme','come','corre','salta','juega','ladra'], cat: ['duerme','come','salta','juega','maúlla'],
+  bird: ['vuela','canta','come'], fish: ['nada'], cow: ['come','duerme','muge'], monkey: ['come','salta','juega'], frog: ['salta','nada','croa'],
+  bear: ['duerme','come'], insect: ['vuela'], duck: ['nada','vuela','come'], horse: ['corre','come','salta'], lion: ['ruge','duerme','corre','come'],
+  rabbit: ['salta','come','corre'], sheep: ['come','duerme'], dolphin: ['nada','salta'], elephant: ['come','duerme'], hen: ['come','cacarea']
+};
+var NEVER = { // acciones imposibles para frases falsas
+  human: ['ladra','maúlla','ruge','vuela','muge','croa','cacarea'],
+  animal: ['lee','pinta','cocina','cose','escribe','trabaja']
+};
+var LOC = { duerme:['en la cama','en el sofá','por la noche'], corre:['por el parque','en la playa','muy rápido'], nada:['en el mar','en la piscina','en el río'],
+  canta:['en la ducha','una canción','muy bajito'], salta:['en el jardín','muy alto','en la cama'], juega:['en el parque','en el patio','con sus amigos'],
+  pasea:['por el campo','por la calle','por el bosque'], baila:['en la fiesta','con su amigo','en el salón'], vuela:['por el cielo','muy alto','entre las nubes'] };
+var OBJ = {
+  come: [['una manzana','🍎'],['un plátano','🍌'],['una galleta','🍪'],['una pera','🍐'],['pan','🍞'],['una pizza','🍕'],['un helado','🍦'],['sopa','🍲'],['uvas','🍇'],['queso','🧀'],['una fresa','🍓'],['una sandía','🍉']],
+  bebe: [['agua','💧'],['leche','🥛']],
+  lee: [['un libro','📖'],['una carta','✉️'],['el periódico','📰'],['un cuento','📕']],
+  'juega con': [['la pelota','⚽'],['el globo','🎈'],['la muñeca','🎎'],['la cometa','☄️'],['los dados','🎲']],
+  toca: [['la guitarra','🎸'],['el tambor','🥁'],['el piano','🎹'],['la trompeta','🎺'],['el violín','🎻']],
+  'va en': [['bici','🚲'],['patinete','🛴'],['tren','🚂'],['barco','⛵'],['avión','✈️'],['autobús','🚌'],['coche','🚗']],
+  pinta: [['un sol','☀️'],['una casa','🏠'],['una flor','🌸'],['un árbol','🌳'],['un barco','⛵'],['un corazón','❤️']],
+  tiene: [['un regalo','🎁'],['un globo','🎈'],['un paraguas','☂️'],['una flor','🌸'],['un perro','🐶'],['un gato','🐱'],['una pelota','⚽']],
+  mira: [['la luna','🌙'],['las estrellas','⭐'],['la tele','📺'],['el mar','🌊'],['el arcoíris','🌈']]
+};
+var ANIMAL_FOOD = { monkey:[['un plátano','🍌']], rabbit:[['una zanahoria','🥕']], bear:[['miel','🍯']], cow:[['hierba','🌿']], sheep:[['hierba','🌿']], horse:[['hierba','🌿'],['una zanahoria','🥕']], elephant:[['cacahuetes','🥜']], dog:[['un hueso','🦴']], hen:[['trigo','🌾']] };
+function capF(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function isHuman(s) { return s.k === 'kid' || s.k === 'adult' || s.k === 'baby'; }
+var GEN_TREN = [], GEN_TRUTH = [], GEN_ORDER = [], GEN_PICK = [], GEN_CLOZE = [];
+(function () {
+  SUBJ.forEach(function (s) {
+    var can = CAN[s.k];
+    can.forEach(function (v) {
+      GEN_TREN.push([s.t + ' ' + v, s.e + VERB[v]]);
+      GEN_TRUTH.push([capF(s.t) + ' ' + v, 1, s.e]);
+      if (LOC[v]) LOC[v].forEach(function (l) {
+        if (!isHuman(s)) { var okA = { corre: ['por el parque', 'muy rápido'], nada: ['en el mar', 'en el río'], vuela: ['por el cielo', 'muy alto', 'entre las nubes'], salta: ['muy alto'], duerme: ['por la noche'] };
+          if (!okA[v] || okA[v].indexOf(l) < 0) return; if (s.k === 'fish' && l === 'en el río') return; }
+        if (s.k === 'baby' && v !== 'duerme') return;
+        GEN_ORDER.push([capF(s.t) + ' ' + v + ' ' + l, s.e + VERB[v]]); });
+    });
+    (isHuman(s) ? NEVER.human : NEVER.animal).forEach(function (v) { if (can.indexOf(v) < 0) GEN_TRUTH.push([capF(s.t) + ' ' + v, 0, s.e]); });
+    // con objeto
+    var frames = [];
+    if (isHuman(s)) {
+      frames.push(['come', OBJ.come], ['bebe', OBJ.bebe]);
+      if (s.k !== 'baby') frames.push(['lee', OBJ.lee], ['toca', OBJ.toca], ['va en', OBJ['va en']], ['tiene', OBJ.tiene], ['mira', OBJ.mira]);
+      if (s.k !== 'adult') frames.push(['juega con', OBJ['juega con']]);
+      if (s.k === 'kid') frames.push(['pinta', OBJ.pinta]);
+    } else {
+      if (ANIMAL_FOOD[s.k]) frames.push(['come', ANIMAL_FOOD[s.k]]);
+      if (s.k === 'dog' || s.k === 'cat') frames.push(['juega con', [['la pelota','⚽']]], ['bebe', s.k === 'cat' ? [['leche','🥛']] : [['agua','💧']]]);
+    }
+    frames.forEach(function (f) {
+      f[1].forEach(function (o) {
+        var sent = capF(s.t) + ' ' + f[0] + ' ' + o[0];
+        GEN_ORDER.push([sent, s.e + o[1]]);
+        // objeto que no encaja con el verbo (para completar)
+        var SRC = { come: ['lee', 'toca', 'va en'], bebe: ['lee', 'toca', 'va en'], lee: ['come', 'va en', 'toca'], 'va en': ['come', 'bebe', 'lee'], 'juega con': ['come', 'bebe', 'lee'] };
+        if (SRC[f[0]] && isHuman(s)) {
+          var wrong = []; SRC[f[0]].forEach(function (vv) { OBJ[vv].forEach(function (x) { wrong.push(x[0]); }); });
+          var w1 = wrong[(o[0].length * 7) % wrong.length], w2 = wrong[(o[0].length * 13 + 5) % wrong.length];
+          if (w2 === w1) w2 = wrong[(wrong.indexOf(w1) + 3) % wrong.length];
+          GEN_CLOZE.push([capF(s.t) + ' ' + f[0] + ' ___.', o[0], [w1, w2]]);
+        }
+        if (isHuman(s)) {
+          var others = SUBJ.filter(function (x) { return isHuman(x) && x.e !== s.e; });
+          var otherS = others[(o[0].length + f[0].length) % others.length];
+          var otherO = f[1].filter(function (x) { return x[1] !== o[1]; });
+          if (otherO.length) GEN_PICK.push([sent, s.e + o[1], [s.e + otherO[o[0].length % otherO.length][1], otherS.e + o[1]]]);
+        }
+      });
+    });
+  });
+  // verbo que falta: "Mamá ___ un libro."
+  [['lee','un libro',['come','bebe']], ['bebe','agua',['lee','pinta']], ['toca','la guitarra',['come','bebe']], ['come','una manzana',['lee','toca']], ['pinta','un sol',['bebe','come']], ['mira','la luna',['come','bebe']], ['va en','bici',['come','lee']]].forEach(function (x) {
+    SUBJ.filter(function (s) { return s.k === 'kid' || s.k === 'adult'; }).forEach(function (s) {
+      if (x[0] === 'pinta' && s.k !== 'kid') return;
+      GEN_CLOZE.push([capF(s.t) + ' ___ ' + x[1] + '.', x[0], x[2]]);
+    });
+  });
+})();
+
+/* Más frases escritas a mano */
+CLOZE = CLOZE.concat([
+  ['El sol sale por la ___.','mañana',['noche','cena']], ['En invierno nos ponemos el ___.','abrigo',['bañador','sombrero de paja']], ['Las vacas viven en la ___.','granja',['nube','biblioteca']],
+  ['Me baño en la ___ de la playa.','arena',['nevera','lámpara']], ['Los pájaros tienen ___.','plumas',['ruedas','botones']], ['El panadero hace ___.','pan',['zapatos','coches']],
+  ['El médico trabaja en el ___.','hospital',['río','árbol']], ['Para ir al colegio llevo la ___.','mochila',['sartén','almohada']], ['El semáforo en rojo dice que hay que ___.','parar',['correr','saltar']],
+  ['Por la noche me pongo el ___.','pijama',['casco','bañador']], ['Los peces respiran dentro del ___.','agua',['horno','armario']], ['Las ovejas nos dan ___.','lana',['leche de coco','madera']],
+  ['La luna sale por la ___.','noche',['mañana','merienda']], ['Uso un cepillo para lavarme los ___.','dientes',['zapatos','platos']], ['Si tengo sed, bebo ___.','agua',['arena','sopa de letras']],
+  ['El cartero lleva las cartas al ___.','buzón',['frigorífico','río']], ['Mi abuela riega las ___.','plantas',['sillas','nubes']], ['Para dormir apago la ___.','luz',['puerta','silla']],
+  ['El pirata busca un ___.','tesoro',['zapato','calcetín']], ['Las abejas viven en la ___.','colmena',['pecera','cueva de hielo']]
+]);
+TRUTH_A = TRUTH_A.concat([
+  ['Los pájaros ponen huevos',1,'🐦'], ['El mar tiene agua salada',1,'🌊'], ['Las estrellas brillan de día y de noche iguales',0,'⭐'], ['La nieve es caliente',0,'❄️'],
+  ['Las vacas comen hierba',1,'🐮'], ['Los coches vuelan por las nubes',0,'🚗'], ['El arcoíris tiene muchos colores',1,'🌈'], ['Las patatas crecen bajo la tierra',1,'🥔'],
+  ['Los elefantes son más pequeños que las hormigas',0,'🐘'], ['Los dientes se lavan con cepillo',1,'🪥'], ['El fuego está muy frío',0,'🔥'], ['Los osos duermen en invierno',1,'🐻'],
+  ['Las ranas viven en los árboles de la luna',0,'🐸'], ['El año tiene doce meses',1,'📅'], ['Los gatos tienen bigotes',1,'🐱'], ['Las serpientes tienen patas',0,'🐍'],
+  ['Las naranjas son azules',0,'🍊'], ['Las plantas tienen raíces',1,'🌱'], ['Los peces tienen escamas',1,'🐟'], ['Los niños van al colegio a aprender',1,'🏫'],
+  ['La leche sale de las piedras',0,'🥛'], ['El búho sale de noche',1,'🦉'], ['Los caracoles son muy rápidos',0,'🐌'], ['Las nubes están hechas de algodón de azúcar',0,'☁️'],
+  ['Los dinosaurios vivieron hace muchísimo tiempo',1,'🦕']
+]);
+TRUTH_A = TRUTH_A.filter(function (t) { return t[2] !== '🪥'; }).concat([['Los dientes se lavan con cepillo',1,'😁']]);
+RIDDLES = RIDDLES.concat([
+  ['Tengo plumas, pongo huevos y digo cocoricó por la mañana. ¿Quién soy?','🐓','el gallo',['🐔','🦆']],
+  ['Soy amarillo por fuera, blanco por dentro y le gusto mucho al mono. ¿Quién soy?','🍌','el plátano',['🍋','🌽']],
+  ['Tengo teclas blancas y negras y hago música. ¿Quién soy?','🎹','el piano',['🎸','📱']],
+  ['Me usas para ver mejor y me pones en la nariz. ¿Quién soy?','👓','las gafas',['👒','🧣']],
+  ['Tengo alas de colores y antes fui una oruga. ¿Quién soy?','🦋','la mariposa',['🐝','🐦']],
+  ['Soy redonda, salto y me das patadas en el parque. ¿Quién soy?','⚽','la pelota',['🎈','🍊']],
+  ['Ladro, muevo la cola y soy el mejor amigo. ¿Quién soy?','🐶','el perro',['🐱','🐰']],
+  ['Tengo bigotes, digo miau y me encanta dormir. ¿Quién soy?','🐱','el gato',['🐭','🐶']],
+  ['Tengo cuatro patas pero no ando. Me usas para sentarte. ¿Quién soy?','💺','la silla',['🛏️','🚪']],
+  ['Soy blanco, frío, me haces en invierno y llevo zanahoria de nariz. ¿Quién soy?','⛄','el muñeco de nieve',['☁️','🧊']],
+  ['Me subes y me bajas, llevo a la gente al cielo, y tengo alas. ¿Quién soy?','✈️','el avión',['🚂','🚲']],
+  ['Pico, piiico, hago nidos en los árboles y vuelo. ¿Quién soy?','🐦','el pájaro',['🐟','🐢']],
+  ['Soy roja, tengo pepitas por fuera y estoy muy rica con nata. ¿Quién soy?','🍓','la fresa',['🍒','🍅']],
+  ['Me enciendes cuando está oscuro y doy luz. ¿Quién soy?','💡','la bombilla',['🔑','🎈']],
+  ['Hago tic tac y te despierto por la mañana. ¿Quién soy?','⏰','el despertador',['📺','📻']],
+  ['Tengo caparazón duro y camino muy despacio. ¿Quién soy?','🐢','la tortuga',['🦀','🐸']],
+  ['Vivo en el mar, soy enorme y echo agua por la cabeza. ¿Quién soy?','🐳','la ballena',['🐟','🐙']],
+  ['Me abres para entrar en casa y tengo pomo. ¿Quién soy?','🚪','la puerta',['🪟','📦'].map(function(x){return x==='🪟'?'🖼️':x;})],
+  ['Tengo ruedas y dos pedales, y me montas con casco. ¿Quién soy?','🚲','la bici',['🚗','🛴']],
+  ['Caigo del cielo en gotas y mojo todo. ¿Quién soy?','🌧️','la lluvia',['☀️','❄️']],
+  ['Tengo rayas negras y blancas y parezco un caballo. ¿Quién soy?','🦓','la cebra',['🐴','🐯']],
+  ['Soy verde, tengo pinchos y vivo en el desierto. ¿Quién soy?','🌵','el cactus',['🌳','🌻']],
+  ['Me pones en la cabeza cuando hace sol. ¿Quién soy?','👒','el sombrero',['👟','🧤']],
+  ['Toco el pito, llevo vagones y voy por las vías. ¿Quién soy?','🚂','el tren',['🚌','🚢']],
+  ['Soy la reina de las flores, roja y con espinas. ¿Quién soy?','🌹','la rosa',['🌻','🌷']]
+]);
+PHRASES = PHRASES.concat(GEN_TREN);
+TRUTH_I = TRUTH_I.concat(GEN_TRUTH);
+ORDER = ORDER.concat(GEN_ORDER);
+PICK = PICK.concat(GEN_PICK);
+CLOZE = CLOZE.concat(GEN_CLOZE);
+COMPOUNDS = COMPOUNDS.concat([
+  ['abrelatas','🥫','abre','latas'], ['parachoques','🚗','para','choques'], ['pelapatatas','🥔','pela','patatas'], ['guardabosques','🌲','guarda','bosques'],
+  ['trabalenguas','👅','traba','lenguas'], ['cortaúñas','💅','corta','uñas'], ['bienvenido','👋','bien','venido'], ['medianoche','🌃','media','noche'],
+  ['videojuego','🎮','video','juego'], ['cuentacuentos','📚','cuenta','cuentos'], ['rompeolas','🌊','rompe','olas'], ['Nochebuena','🎄','Noche','buena'],
+  ['Nochevieja','🎆','Noche','vieja'], ['matasellos','📮','mata','sellos']
+]);
+
+(function () {
+  'use strict';
+  /* ¡A leer con Rudi! · Creado por Rodolfo López Martínez · CC BY-NC 4.0 · Funciona sin conexión */
+  var ROUNDS = 5;
+
+  /* =================== UTILIDADES =================== */
+  function $(id) { return document.getElementById(id); }
+  function rnd(n) { return Math.floor(Math.random() * n); }
+  function pick(a) { return a[rnd(a.length)]; }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = rnd(i + 1); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function el(tag, cls, html) { var d = document.createElement(tag); if (cls) d.className = cls; if (html != null) d.innerHTML = html; return d; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+  function noAcc(s) { return s.replace(/[áà]/g, 'a').replace(/[éè]/g, 'e').replace(/[íì]/g, 'i').replace(/[óò]/g, 'o').replace(/[úùü]/g, 'u'); }
+  function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+  var timers = [], intervals = [];
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+  function every(fn, ms) { intervals.push(setInterval(fn, ms)); }
+  function clearTimers() { timers.forEach(clearTimeout); intervals.forEach(clearInterval); timers = []; intervals = []; }
+  function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  var id = function (x) { return x; };
+
+  /* =================== ESTADO (sólo en este aparato) =================== */
+  function blank() { return { v: 3, name: '', level: '', stickers: [], done: {}, stats: {}, days: {}, upper: false, slow: false, voice: '', music: true, sfx: true, rec: true, accepted: false, breakMin: 10, updated: null }; }
+  var S = blank();
+  try { var sv = JSON.parse(localStorage.getItem('rudi-v1') || 'null'); if (sv && sv.v === 3) { for (var k in S) if (sv[k] !== undefined) S[k] = sv[k]; } } catch (e) {}
+  function save() { S.updated = new Date().toISOString(); try { localStorage.setItem('rudi-v1', JSON.stringify(S)); } catch (e) {} }
+  function fmt(s) { return S.upper ? s.toUpperCase() : s; }
+  function nm() { return S.name || ''; }
+
+  /* =================== PALABRAS =================== */
+  var ALL_WORDS = W.map(function (a) { return { w: a[0], e: a[1], s: a[2].split('-') }; });
+  var ALL_EXTRA = X.map(function (a) { return { w: a[0], e: a[1] }; });
+  var EVERY = ALL_WORDS.concat(ALL_EXTRA);
+  var WORDS = [], EXTRA = [], gamesSinceRotate = 0;
+  function uniqEmoji(list) { var seen = {}, out = []; list.forEach(function (x) { if (!seen[x.e]) { seen[x.e] = 1; out.push(x); } }); return out; }
+  function rotateWords() {
+    var two = shuffle(ALL_WORDS.filter(function (w) { return w.s.length <= 2; })).slice(0, 30);
+    var three = shuffle(ALL_WORDS.filter(function (w) { return w.s.length === 3; })).slice(0, 18);
+    var four = shuffle(ALL_WORDS.filter(function (w) { return w.s.length >= 4; })).slice(0, 6);
+    WORDS = uniqEmoji(two.concat(three, four));
+    EXTRA = uniqEmoji(shuffle(ALL_EXTRA)).filter(function (x) { return !WORDS.some(function (w) { return w.e === x.e; }); }).slice(0, 30);
+    gamesSinceRotate = 0;
+  }
+  rotateWords();
+  var NOCOUNT = ['leche','miel','nieve','lluvia','dinero','arroz','maíz','tenis','cactus','arcoíris','agua','fuego','ropa','pelo','risa','sopa','paella','trigo','hierba','fiesta','tormenta','mundo','brócoli','espagueti','flan','pan','ensalada','gasolina','chocolate','lengua','aplauso','bebé','mamá','papá','abuela','abuelo','niña','niño','policía','esquí','cumpleaños'];
+  function plural(w) {
+    var last = w.slice(-1);
+    if ('aeiouáéó'.indexOf(last) > -1) return w + 's';
+    if (last === 's' || last === 'x') return w;
+    if ('tpkbcgm'.indexOf(last) > -1) return w + 's';
+    if (last === 'z') return w.slice(0, -1) + 'ces';
+    var base = w.replace(/á([nls])$/, 'a$1').replace(/é([nls])$/, 'e$1').replace(/í([nls])$/, 'i$1').replace(/ó([nls])$/, 'o$1').replace(/ú([nls])$/, 'u$1');
+    return base + 'es';
+  }
+
+  /* =================== VOZ =================== */
+  // Si existen grabaciones (VOZ), se usan; si no, la mejor voz de España del aparato.
+  var voice = null, voices = [];
+  function scoreVoice(v) {
+    var s = 0, n = v.name || '', l = (v.lang || '').replace('_', '-');
+    if (/^es-ES/i.test(l)) s += 100; else if (/^es/i.test(l)) s += 20; else return -1;
+    if (/premium|mejorad|enhanced|neural|natural|siri/i.test(n)) s += 50;
+    if (/google/i.test(n) && /^es-ES/i.test(l)) s += 30;
+    if (/m[oó]nica|marisol|jorge|elvira|[aá]lvaro|luc[ií]a|helena|laura|pablo|carmen|dario/i.test(n)) s += 10;
+    if (/compact|eloquence|grandpa|grandma|rocko|shelley|flo|reed|sandy|eddy/i.test(n)) s -= 40;
+    if (v.localService) s += 3;
+    return s;
+  }
+  function loadVoices() {
+    if (!window.speechSynthesis) return;
+    voices = (speechSynthesis.getVoices() || []).filter(function (v) { return scoreVoice(v) >= 0; });
+    voices.sort(function (a, b) { return scoreVoice(b) - scoreVoice(a); });
+    voice = null;
+    if (S.voice) voices.forEach(function (v) { if (v.name === S.voice) voice = v; });
+    if (!voice) voice = voices[0] || null;
+  }
+  if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+  function key(t) { return noAcc(String(t).toLowerCase()).replace(/[¡!¿?.,;:«»"]/g, '').replace(/\s+/g, ' ').trim(); }
+
+  var ACtx = window.AudioContext || window.webkitAudioContext, actx = null, curSrc = null, queue = [], busy = false, gen = 0;
+  function unlockAudio() {
+    try { if (ACtx && !actx) actx = new ACtx(); if (actx && actx.state === 'suspended') actx.resume(); } catch (e) {}
+    try { warmPacks(); } catch (e) {}
+    try { if (window.speechSynthesis) { var u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } } catch (e) {}
+  }
+  function stopAll() {
+    gen++; queue = []; busy = false; try { setMusicGain(); } catch (e) {}
+    try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+    try { if (curSrc) curSrc.stop(0); } catch (e) {}
+    curSrc = null;
+  }
+  function b64ToBuf(d) { var b = atob(d.split(',')[1]), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u.buffer; }
+  var clipCache = {};
+  function loadClip(url, cb) {
+    if (clipCache[url]) return cb(clipCache[url]);
+    try {
+      var x = new XMLHttpRequest(); x.open('GET', url, true); x.responseType = 'arraybuffer';
+      x.onload = function () {
+        if (x.status && x.status !== 200 && x.status !== 0) return cb(null);
+        try { actx.decodeAudioData(x.response, function (buf) { clipCache[url] = buf; cb(buf); }, function () { cb(null); }); } catch (e) { cb(null); }
+      };
+      x.onerror = function () { cb(null); };
+      x.send();
+    } catch (e) { cb(null); }
+  }
+  var packs = {}, packWait = {};
+  function loadPack(n, cb) {
+    if (packs[n]) return cb(packs[n]);
+    if (packWait[n]) return packWait[n].push(cb);
+    packWait[n] = [cb];
+    function fin(buf) { packs[n] = buf; var w = packWait[n]; packWait[n] = null; for (var i = 0; i < w.length; i++) w[i](buf); if (!buf) packs[n] = null; }
+    if (window.VOZPACK && VOZPACK[n]) { try { var b = atob(VOZPACK[n]), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return fin(u.buffer); } catch (e) { return fin(null); } }
+    try {
+      var x = new XMLHttpRequest(); x.open('GET', 'voz/p' + n + '.bin', true); x.responseType = 'arraybuffer';
+      x.onload = function () { fin(x.status === 200 || x.status === 0 ? x.response : null); };
+      x.onerror = function () { fin(null); }; x.send();
+    } catch (e) { fin(null); }
+  }
+  function loadClipPacked(ref, cb) {
+    if (clipCache[ref]) return cb(clipCache[ref]);
+    var p = ref.split(':'), n = p[0].slice(1), off = +p[1], len = +p[2];
+    loadPack(n, function (buf) {
+      if (!buf) return cb(null);
+      try { actx.decodeAudioData(buf.slice(off, off + len), function (ab) { clipCache[ref] = ab; cb(ab); }, function () { cb(null); }); } catch (e) { cb(null); }
+    });
+  }
+  function warmPacks() { if (typeof VOZ === 'undefined' || !VOZ.__packs) return; for (var i = 0; i < VOZ.__packs; i++) loadPack(String(i), function () {}); }
+  function playClip(data, done, text) {
+    if (!actx) return playTTS(text, done);
+    var g = gen;
+    try { if (actx.state === 'suspended' && actx.resume) actx.resume(); } catch (e) {}
+    if (data.indexOf('data:') === 0) {
+      try { actx.decodeAudioData(b64ToBuf(data), function (buf) { start(buf); }, function () { done(); }); } catch (e) { done(); }
+    } else (/^p\d+:/.test(data) ? loadClipPacked : loadClip)(data, function (buf) { if (g !== gen) return; if (buf) start(buf); else playTTS(text, done); });
+    function start(buf) {
+      if (g !== gen) return;
+      var src = actx.createBufferSource(); src.buffer = buf; src.connect(actx.destination);
+      src.onended = function () { if (g === gen) setTimeout(function () { if (g === gen) done(); }, 120); };
+      curSrc = src; src.start(0);
+    }
+  }
+  function prefetch(parts) {
+    if (!actx || typeof VOZ === 'undefined' || !S.rec) return;
+    for (var i = 0; i < parts.length; i++) { var v = parts[i] && VOZ[key(parts[i])]; if (v && v.indexOf('data:') !== 0) (/^p\d+:/.test(v) ? loadClipPacked : loadClip)(v, function () {}); }
+  }
+  function playTTS(text, done) {
+    if (!window.speechSynthesis) return done();
+    var g = gen, finished = false;
+    function fin() { if (finished || g !== gen) return; finished = true; done(); }
+    try {
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = voice ? voice.lang : 'es-ES'; if (voice) u.voice = voice;
+      u.rate = S.slow ? 0.72 : 0.9; u.pitch = 1.05;
+      u.onend = fin; u.onerror = fin;
+      speechSynthesis.speak(u);
+      setTimeout(fin, 900 + text.length * 110); // por si el navegador no avisa al terminar
+    } catch (e) { done(); }
+  }
+  /* Música relajante generada en el aparato (sin archivos ni internet) */
+  var mus = { on: false, master: null, timer: null, t: 0, step: 0 };
+  var SCALE = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25, 783.99];
+  var CHORDS = [[0, 2, 3, 5], [4, 5, 7, 2], [1, 3, 5, 6], [3, 4, 6, 8]]; // I, vi, IV, V aproximados en pentatónica
+  var MEL = [5, -1, 4, 3, -1, 2, 3, -1, 4, -1, 5, 6, 5, -1, 3, -1, 2, -1, 3, 4, -1, 3, 2, -1, 1, -1, 2, 3, 2, -1, 0, -1];
+  function musicNode() {
+    if (!actx || mus.master) return;
+    mus.master = actx.createGain(); mus.master.gain.value = 0;
+    var lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200;
+    var dl = actx.createDelay(); dl.delayTime.value = 0.42; var fb = actx.createGain(); fb.gain.value = 0.28;
+    mus.master.connect(lp); lp.connect(actx.destination); lp.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(actx.destination);
+  }
+  function note(freq, when, dur, vol, type) {
+    var o = actx.createOscillator(), g = actx.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, when); g.gain.linearRampToValueAtTime(vol, when + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    o.connect(g); g.connect(mus.master); o.start(when); o.stop(when + dur + 0.05);
+  }
+  function schedule() {
+    var spb = 60 / 72 / 2; // corcheas a 72 ppm
+    while (mus.t < actx.currentTime + 0.6) {
+      var bar = Math.floor(mus.step / 8) % 4, beat = mus.step % 8, ch = CHORDS[bar];
+      if (beat === 0) note(SCALE[ch[0]] / 2, mus.t, 3.2, 0.32, 'sine');
+      note(SCALE[ch[beat % 4]], mus.t, 1.6, 0.10, 'triangle');
+      var m = MEL[mus.step % MEL.length]; if (m >= 0) note(SCALE[m] * 2, mus.t, 1.4, 0.07, 'sine');
+      mus.t += spb; mus.step++;
+    }
+  }
+  function musicLevel() { return busy ? 0.25 : 1; }
+  function setMusicGain() { if (mus.master) mus.master.gain.setTargetAtTime(mus.on ? 0.22 * musicLevel() : 0, actx.currentTime, 0.4); }
+  function musicOn() {
+    if (S.music === false || !actx) return;
+    musicNode(); if (!mus.master) return;
+    if (!mus.on) { mus.on = true; mus.t = actx.currentTime + 0.1; mus.step = 0; if (mus.timer) clearInterval(mus.timer); mus.timer = setInterval(schedule, 200); schedule(); }
+    setMusicGain();
+  }
+  function musicOff() { if (!mus.on) return; mus.on = false; setMusicGain(); var tm = mus.timer; mus.timer = null; setTimeout(function () { if (!mus.on && tm) clearInterval(tm); }, 1500); }
+  function sfx(kind) {
+    if (S.sfx === false || !actx) return;
+    try {
+      var t = actx.currentTime, out = actx.createGain(); out.gain.value = 0.18; out.connect(actx.destination);
+      var seq = kind === 'ok' ? [[660, 0], [990, 0.09]] : kind === 'bad' ? [[220, 0], [180, 0.12]] : kind === 'pop' ? [[880, 0]] :
+        kind === 'win' ? [[523, 0], [659, 0.12], [784, 0.24], [1047, 0.36], [1319, 0.5]] : [[700, 0]];
+      seq.forEach(function (n) {
+        var o = actx.createOscillator(), g = actx.createGain(); o.type = kind === 'bad' ? 'sine' : 'triangle'; o.frequency.value = n[0];
+        if (kind === 'pop') o.frequency.exponentialRampToValueAtTime(220, t + 0.15);
+        g.gain.setValueAtTime(0.0001, t + n[1]); g.gain.linearRampToValueAtTime(0.9, t + n[1] + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + n[1] + (kind === 'win' ? 0.5 : 0.25));
+        o.connect(g); g.connect(out); o.start(t + n[1]); o.stop(t + n[1] + 0.6);
+      });
+    } catch (e) {}
+  }
+  function music(want) { if (want) musicOn(); else musicOff(); }
+
+  function next() {
+    if (!queue.length) { busy = false; setMusicGain(); return; }
+    busy = true; setMusicGain();
+    var t = queue.shift(), v = (typeof VOZ !== 'undefined' && S.rec !== false) ? VOZ[key(t)] : null;
+    if (v) playClip(v, next, t); else playTTS(t, next);
+  }
+  function say(parts, keep) {
+    if (!keep) stopAll();
+    if (!parts) return;
+    if (typeof parts === 'string') parts = [parts];
+    parts.forEach(function (p) { if (p) queue.push(p); });
+    prefetch(queue);
+    if (!busy) next();
+  }
+  function sayQ(parts) { say(parts, true); }
+
+  /* =================== RUDI Y FONDOS =================== */
+  var RUDI = '<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" aria-label="Rudi">' +
+    '<polygon points="45,55 62,10 85,45" fill="#7a4a2e"/><polygon points="155,55 138,10 115,45" fill="#7a4a2e"/>' +
+    '<ellipse cx="100" cy="118" rx="72" ry="80" fill="#9a6440"/>' +
+    '<ellipse cx="40" cy="128" rx="20" ry="42" fill="#7a4a2e" transform="rotate(14 40 128)"/><ellipse cx="160" cy="128" rx="20" ry="42" fill="#7a4a2e" transform="rotate(-14 160 128)"/>' +
+    '<ellipse cx="100" cy="142" rx="46" ry="50" fill="#f6dfb8"/>' +
+    '<path d="M78 132 q8 7 16 0 M106 132 q8 7 16 0 M90 152 q8 7 16 0 M78 170 q8 6 16 0 M106 170 q8 6 16 0" stroke="#e2c08e" stroke-width="3" fill="none"/>' +
+    '<circle cx="72" cy="86" r="30" fill="#fff"/><circle cx="128" cy="86" r="30" fill="#fff"/>' +
+    '<circle cx="76" cy="90" r="15" fill="#3b2f5c"/><circle cx="124" cy="90" r="15" fill="#3b2f5c"/>' +
+    '<circle cx="81" cy="84" r="5.5" fill="#fff"/><circle cx="129" cy="84" r="5.5" fill="#fff"/>' +
+    '<circle cx="52" cy="112" r="8" fill="#ff9aa2" opacity=".7"/><circle cx="148" cy="112" r="8" fill="#ff9aa2" opacity=".7"/>' +
+    '<polygon points="92,104 108,104 100,120" fill="#ffa41b"/>' +
+    '<path d="M76 198 l-8 10 M84 198 v12 M92 198 l8 10 M108 198 l-8 10 M116 198 v12 M124 198 l8 10" stroke="#ffa41b" stroke-width="5" stroke-linecap="round"/>' +
+    '</svg>';
+
+  /* Avatar del profe: provisional, se ajusta a los rasgos de Rodolfo */
+  var AV = { skin: '#f0c4a1', hair: '#4a3426', bald: false, beard: 'short', beardColor: '#4a3426', glasses: true, eyes: '#5b3a29', shirt: '#4D96FF' };
+  var PIXEL_AV = '<svg viewBox="0 0 24 29" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-label="Explorador"><rect x="6" y="0" width="1" height="1" fill="#ff8fd8"/><rect x="17" y="0" width="1" height="1" fill="#ff8fd8"/><rect x="5" y="1" width="3" height="1" fill="#ff8fd8"/><rect x="16" y="1" width="3" height="1" fill="#ff8fd8"/><rect x="6" y="2" width="1" height="1" fill="#2f6b25"/><rect x="17" y="2" width="1" height="1" fill="#2f6b25"/><rect x="7" y="3" width="1" height="1" fill="#2f6b25"/><rect x="16" y="3" width="1" height="1" fill="#2f6b25"/><rect x="8" y="4" width="8" height="1" fill="#2f6b25"/><rect x="6" y="5" width="2" height="1" fill="#2f6b25"/><rect x="8" y="5" width="8" height="1" fill="#8fd16a"/><rect x="16" y="5" width="2" height="1" fill="#2f6b25"/><rect x="5" y="6" width="1" height="1" fill="#2f6b25"/><rect x="6" y="6" width="2" height="1" fill="#8fd16a"/><rect x="8" y="6" width="2" height="1" fill="#c4ef9e"/><rect x="10" y="6" width="8" height="1" fill="#8fd16a"/><rect x="18" y="6" width="1" height="1" fill="#2f6b25"/><rect x="4" y="7" width="1" height="1" fill="#2f6b25"/><rect x="5" y="7" width="2" height="1" fill="#8fd16a"/><rect x="7" y="7" width="2" height="1" fill="#c4ef9e"/><rect x="9" y="7" width="10" height="1" fill="#8fd16a"/><rect x="19" y="7" width="1" height="1" fill="#2f6b25"/><rect x="4" y="8" width="1" height="1" fill="#2f6b25"/><rect x="5" y="8" width="14" height="1" fill="#8fd16a"/><rect x="19" y="8" width="1" height="1" fill="#2f6b25"/><rect x="3" y="9" width="1" height="1" fill="#2f6b25"/><rect x="4" y="9" width="16" height="1" fill="#8fd16a"/><rect x="20" y="9" width="1" height="1" fill="#2f6b25"/><rect x="2" y="10" width="2" height="1" fill="#2f6b25"/><rect x="4" y="10" width="7" height="1" fill="#26232f"/><rect x="11" y="10" width="2" height="1" fill="#8fd16a"/><rect x="13" y="10" width="7" height="1" fill="#26232f"/><rect x="20" y="10" width="2" height="1" fill="#2f6b25"/><rect x="1" y="11" width="1" height="1" fill="#2f6b25"/><rect x="2" y="11" width="1" height="1" fill="#8fd16a"/><rect x="3" y="11" width="1" height="1" fill="#2f6b25"/><rect x="4" y="11" width="1" height="1" fill="#26232f"/><rect x="5" y="11" width="3" height="1" fill="#4b4a5c"/><rect x="8" y="11" width="1" height="1" fill="#aab4dc"/><rect x="9" y="11" width="1" height="1" fill="#4b4a5c"/><rect x="10" y="11" width="4" height="1" fill="#26232f"/><rect x="14" y="11" width="3" height="1" fill="#4b4a5c"/><rect x="17" y="11" width="1" height="1" fill="#aab4dc"/><rect x="18" y="11" width="1" height="1" fill="#4b4a5c"/><rect x="19" y="11" width="1" height="1" fill="#26232f"/><rect x="20" y="11" width="1" height="1" fill="#2f6b25"/><rect x="21" y="11" width="1" height="1" fill="#8fd16a"/><rect x="22" y="11" width="1" height="1" fill="#2f6b25"/><rect x="1" y="12" width="1" height="1" fill="#2f6b25"/><rect x="2" y="12" width="1" height="1" fill="#8fd16a"/><rect x="3" y="12" width="1" height="1" fill="#2f6b25"/><rect x="4" y="12" width="1" height="1" fill="#26232f"/><rect x="5" y="12" width="5" height="1" fill="#4b4a5c"/><rect x="10" y="12" width="1" height="1" fill="#26232f"/><rect x="11" y="12" width="2" height="1" fill="#8fd16a"/><rect x="13" y="12" width="1" height="1" fill="#26232f"/><rect x="14" y="12" width="5" height="1" fill="#4b4a5c"/><rect x="19" y="12" width="1" height="1" fill="#26232f"/><rect x="20" y="12" width="1" height="1" fill="#2f6b25"/><rect x="21" y="12" width="1" height="1" fill="#8fd16a"/><rect x="22" y="12" width="1" height="1" fill="#2f6b25"/><rect x="2" y="13" width="1" height="1" fill="#2f6b25"/><rect x="3" y="13" width="1" height="1" fill="#8fd16a"/><rect x="4" y="13" width="1" height="1" fill="#2f6b25"/><rect x="5" y="13" width="5" height="1" fill="#26232f"/><rect x="10" y="13" width="4" height="1" fill="#8fd16a"/><rect x="14" y="13" width="5" height="1" fill="#26232f"/><rect x="19" y="13" width="1" height="1" fill="#2f6b25"/><rect x="20" y="13" width="1" height="1" fill="#8fd16a"/><rect x="21" y="13" width="1" height="1" fill="#2f6b25"/><rect x="3" y="14" width="1" height="1" fill="#2f6b25"/><rect x="4" y="14" width="1" height="1" fill="#8fd16a"/><rect x="5" y="14" width="1" height="1" fill="#ff9aa2"/><rect x="6" y="14" width="5" height="1" fill="#8fd16a"/><rect x="11" y="14" width="2" height="1" fill="#2f6b25"/><rect x="13" y="14" width="5" height="1" fill="#8fd16a"/><rect x="18" y="14" width="1" height="1" fill="#ff9aa2"/><rect x="19" y="14" width="1" height="1" fill="#8fd16a"/><rect x="20" y="14" width="1" height="1" fill="#2f6b25"/><rect x="3" y="15" width="1" height="1" fill="#2f6b25"/><rect x="4" y="15" width="1" height="1" fill="#4a433d"/><rect x="5" y="15" width="2" height="1" fill="#8fd16a"/><rect x="7" y="15" width="10" height="1" fill="#4a433d"/><rect x="17" y="15" width="2" height="1" fill="#8fd16a"/><rect x="19" y="15" width="1" height="1" fill="#4a433d"/><rect x="20" y="15" width="1" height="1" fill="#2f6b25"/><rect x="3" y="16" width="1" height="1" fill="#2f6b25"/><rect x="4" y="16" width="4" height="1" fill="#4a433d"/><rect x="8" y="16" width="8" height="1" fill="#ffffff"/><rect x="16" y="16" width="4" height="1" fill="#4a433d"/><rect x="20" y="16" width="1" height="1" fill="#2f6b25"/><rect x="3" y="17" width="1" height="1" fill="#2f6b25"/><rect x="4" y="17" width="1" height="1" fill="#4a433d"/><rect x="5" y="17" width="1" height="1" fill="#9a9289"/><rect x="6" y="17" width="2" height="1" fill="#4a433d"/><rect x="8" y="17" width="1" height="1" fill="#7a2433"/><rect x="9" y="17" width="6" height="1" fill="#ffffff"/><rect x="15" y="17" width="1" height="1" fill="#7a2433"/><rect x="16" y="17" width="2" height="1" fill="#4a433d"/><rect x="18" y="17" width="1" height="1" fill="#9a9289"/><rect x="19" y="17" width="1" height="1" fill="#4a433d"/><rect x="20" y="17" width="1" height="1" fill="#2f6b25"/><rect x="4" y="18" width="1" height="1" fill="#2f6b25"/><rect x="5" y="18" width="2" height="1" fill="#4a433d"/><rect x="7" y="18" width="1" height="1" fill="#9a9289"/><rect x="8" y="18" width="1" height="1" fill="#4a433d"/><rect x="9" y="18" width="6" height="1" fill="#7a2433"/><rect x="15" y="18" width="2" height="1" fill="#4a433d"/><rect x="17" y="18" width="1" height="1" fill="#9a9289"/><rect x="18" y="18" width="1" height="1" fill="#4a433d"/><rect x="19" y="18" width="1" height="1" fill="#2f6b25"/><rect x="5" y="19" width="1" height="1" fill="#2f6b25"/><rect x="6" y="19" width="3" height="1" fill="#4a433d"/><rect x="9" y="19" width="1" height="1" fill="#9a9289"/><rect x="10" y="19" width="4" height="1" fill="#4a433d"/><rect x="14" y="19" width="1" height="1" fill="#9a9289"/><rect x="15" y="19" width="3" height="1" fill="#4a433d"/><rect x="18" y="19" width="1" height="1" fill="#2f6b25"/><rect x="6" y="20" width="2" height="1" fill="#2f6b25"/><rect x="8" y="20" width="8" height="1" fill="#4a433d"/><rect x="16" y="20" width="2" height="1" fill="#2f6b25"/><rect x="8" y="21" width="8" height="1" fill="#2f6b25"/><rect x="7" y="22" width="1" height="1" fill="#c77a00"/><rect x="8" y="22" width="3" height="1" fill="#ffa41b"/><rect x="11" y="22" width="2" height="1" fill="#ffe066"/><rect x="13" y="22" width="3" height="1" fill="#ffa41b"/><rect x="16" y="22" width="1" height="1" fill="#c77a00"/><rect x="6" y="23" width="1" height="1" fill="#c77a00"/><rect x="7" y="23" width="4" height="1" fill="#ffa41b"/><rect x="11" y="23" width="2" height="1" fill="#ffe066"/><rect x="13" y="23" width="4" height="1" fill="#ffa41b"/><rect x="17" y="23" width="1" height="1" fill="#c77a00"/><rect x="5" y="24" width="1" height="1" fill="#8fd16a"/><rect x="6" y="24" width="1" height="1" fill="#c77a00"/><rect x="7" y="24" width="10" height="1" fill="#ffa41b"/><rect x="17" y="24" width="1" height="1" fill="#c77a00"/><rect x="18" y="24" width="1" height="1" fill="#8fd16a"/><rect x="4" y="25" width="2" height="1" fill="#8fd16a"/><rect x="6" y="25" width="1" height="1" fill="#c77a00"/><rect x="7" y="25" width="10" height="1" fill="#ffa41b"/><rect x="17" y="25" width="1" height="1" fill="#c77a00"/><rect x="18" y="25" width="2" height="1" fill="#8fd16a"/><rect x="6" y="26" width="1" height="1" fill="#c77a00"/><rect x="7" y="26" width="3" height="1" fill="#ffa41b"/><rect x="10" y="26" width="2" height="1" fill="#c77a00"/><rect x="12" y="26" width="4" height="1" fill="#ffa41b"/><rect x="16" y="26" width="1" height="1" fill="#c77a00"/><rect x="7" y="27" width="2" height="1" fill="#8fd16a"/><rect x="15" y="27" width="2" height="1" fill="#8fd16a"/><rect x="6" y="28" width="3" height="1" fill="#2f6b25"/><rect x="15" y="28" width="3" height="1" fill="#2f6b25"/></svg>';
+  function avatarSVG(o) {
+    if (!o) return PIXEL_AV;
+    var hair = o.bald ? '<path d="M52 78 q-4 -14 6 -22 M148 78 q4 -14 -6 -22" stroke="' + o.hair + '" stroke-width="8" fill="none" stroke-linecap="round"/>'
+      : '<path d="M48 92 q-6 -58 52 -62 q58 4 52 62 q-8 -30 -30 -36 q-22 10 -52 4 q-14 8 -22 32 Z" fill="' + o.hair + '"/>';
+    var beard = o.beard === 'none' ? '' : o.beard === 'full'
+      ? '<path d="M56 112 q4 52 44 56 q40 -4 44 -56 q-8 22 -22 26 q-22 -8 -44 0 q-14 -4 -22 -26 Z" fill="' + o.beardColor + '"/>'
+      : '<path d="M60 118 q6 40 40 44 q34 -4 40 -44 q-6 16 -18 20 q-22 -6 -44 0 q-12 -4 -18 -20 Z" fill="' + o.beardColor + '" opacity=".85"/>';
+    var glasses = o.glasses ? '<g fill="none" stroke="#3b2f5c" stroke-width="4"><rect x="62" y="88" width="30" height="24" rx="9"/><rect x="108" y="88" width="30" height="24" rx="9"/><path d="M92 98 h16 M62 96 l-10 -4 M138 96 l10 -4"/></g>' : '';
+    return '<svg viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg" aria-label="Profe">' +
+      '<path d="M30 230 q8 -62 70 -66 q62 4 70 66 Z" fill="' + o.shirt + '"/><path d="M86 166 l14 18 l14 -18" fill="#fff"/>' +
+      '<rect x="88" y="140" width="24" height="30" fill="' + o.skin + '"/>' +
+      '<ellipse cx="48" cy="104" rx="9" ry="13" fill="' + o.skin + '"/><ellipse cx="152" cy="104" rx="9" ry="13" fill="' + o.skin + '"/>' +
+      '<ellipse cx="100" cy="102" rx="50" ry="60" fill="' + o.skin + '"/>' + beard + hair +
+      '<circle cx="77" cy="100" r="6" fill="' + o.eyes + '"/><circle cx="123" cy="100" r="6" fill="' + o.eyes + '"/>' +
+      '<circle cx="79" cy="98" r="2" fill="#fff"/><circle cx="125" cy="98" r="2" fill="#fff"/>' +
+      '<path d="M70 84 q8 -6 16 -1 M114 83 q8 -5 16 1" stroke="' + (o.bald ? '#7a5a44' : o.hair) + '" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+      '<path d="M96 106 q4 14 -2 18 q6 2 10 0" stroke="#c98d6c" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+      '<path d="M84 134 q16 12 32 0" stroke="#8a3b2e" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+      '<circle cx="66" cy="122" r="7" fill="#ff9aa2" opacity=".45"/><circle cx="134" cy="122" r="7" fill="#ff9aa2" opacity=".45"/>' + glasses + '</svg>';
+  }
+
+  var seed = 1;
+  function sr() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+  function wrap(top, bot, inner) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">' +
+      '<defs><linearGradient id="bgg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + top + '"/><stop offset="1" stop-color="' + bot + '"/></linearGradient></defs>' +
+      '<rect width="1000" height="700" fill="url(#bgg)"/>' + inner + '</svg>';
+  }
+  function emo(x, y, size, ch, op) { return '<text x="' + x + '" y="' + y + '" font-size="' + size + '" opacity="' + (op || 1) + '" text-anchor="middle">' + ch + '</text>'; }
+  function cloud(x, y, s) { return '<g fill="#fff" opacity=".9"><ellipse cx="' + x + '" cy="' + y + '" rx="' + 60 * s + '" ry="' + 24 * s + '"/><ellipse cx="' + (x - 30 * s) + '" cy="' + (y - 14 * s) + '" rx="' + 30 * s + '" ry="' + 24 * s + '"/><ellipse cx="' + (x + 22 * s) + '" cy="' + (y - 20 * s) + '" rx="' + 34 * s + '" ry="' + 28 * s + '"/></g>'; }
+  var SCENES = {
+    jardin: function () {
+      var f = '', cols = ['#ff6b6b', '#ffd93b', '#ff9ff3', '#ffffff', '#9b5de5'];
+      seed = 3;
+      for (var i = 0; i < 22; i++) { var x = 20 + i * 46 + sr() * 20, y = 560 + sr() * 110, c = cols[i % 5];
+        f += '<line x1="' + x + '" y1="' + y + '" x2="' + x + '" y2="' + (y + 60) + '" stroke="#3e9b3a" stroke-width="5"/><g fill="' + c + '"><circle cx="' + (x - 10) + '" cy="' + y + '" r="10"/><circle cx="' + (x + 10) + '" cy="' + y + '" r="10"/><circle cx="' + x + '" cy="' + (y - 10) + '" r="10"/><circle cx="' + x + '" cy="' + (y + 10) + '" r="10"/></g><circle cx="' + x + '" cy="' + y + '" r="7" fill="#ffb300"/>'; }
+      var fence = ''; for (var j = 0; j < 22; j++) fence += '<rect x="' + (j * 48) + '" y="455" width="30" height="95" rx="6" fill="#fff8ee"/>';
+      return wrap('#bfe9ff', '#eafaff', '<circle cx="870" cy="110" r="62" fill="#ffd93b"/>' + cloud(200, 120, 1.2) + cloud(560, 80, .9) +
+        '<ellipse cx="250" cy="640" rx="560" ry="230" fill="#8fd16a"/><ellipse cx="820" cy="660" rx="520" ry="220" fill="#6cc04a"/>' +
+        '<rect y="480" width="1000" height="16" fill="#fff8ee"/>' + fence + f + emo(150, 330, 46, '🦋') + emo(780, 300, 40, '🐝') + emo(470, 380, 36, '🦋'));
+    },
+    selva: function () {
+      var leaves = ''; seed = 7;
+      for (var i = 0; i < 26; i++) { var x = sr() * 1000, top = i % 2 === 0, y = top ? sr() * 140 : 560 + sr() * 140, r = sr() * 180;
+        leaves += '<ellipse cx="' + x + '" cy="' + y + '" rx="95" ry="34" fill="' + (i % 3 ? '#2e7d32' : '#43a047') + '" transform="rotate(' + r + ' ' + x + ' ' + y + ')"/>'; }
+      var vines = ''; for (var v = 0; v < 7; v++) { var vx = 60 + v * 150; vines += '<path d="M' + vx + ' 0 q30 120 -10 230 q-30 110 20 220" stroke="#1b5e20" stroke-width="7" fill="none"/>'; }
+      return wrap('#7cc576', '#d6f5a8', vines + leaves + emo(860, 230, 70, '🦜', .95) + emo(130, 300, 64, '🐒', .95) + emo(520, 640, 50, '🌺') + emo(300, 600, 46, '🌿'));
+    },
+    mar: function () {
+      var b = ''; seed = 11;
+      for (var i = 0; i < 24; i++) b += '<circle cx="' + (sr() * 1000) + '" cy="' + (sr() * 600) + '" r="' + (4 + sr() * 12) + '" fill="none" stroke="#e1f5fe" stroke-width="3" opacity=".7"/>';
+      var weed = ''; for (var w = 0; w < 9; w++) { var x = 40 + w * 115; weed += '<path d="M' + x + ' 700 q-25 -60 0 -120 q25 -60 0 -120" stroke="#2e7d32" stroke-width="12" fill="none" stroke-linecap="round"/>'; }
+      return wrap('#4fc3f7', '#0b4f8a', '<polygon points="120,0 220,0 420,700 250,700" fill="#fff" opacity=".07"/><polygon points="600,0 680,0 900,700 760,700" fill="#fff" opacity=".07"/>' +
+        b + '<path d="M0 640 Q250 600 500 640 T1000 630 V700 H0 Z" fill="#f4d58d"/>' + weed + emo(180, 220, 60, '🐠') + emo(820, 330, 64, '🐟') + emo(560, 160, 50, '🐡') + emo(720, 670, 44, '🦀') + emo(300, 675, 40, '🐚'));
+    },
+    espacio: function () {
+      var st = ''; seed = 5;
+      for (var i = 0; i < 90; i++) st += '<circle cx="' + (sr() * 1000) + '" cy="' + (sr() * 700) + '" r="' + (1 + sr() * 2.6) + '" fill="#fff" opacity="' + (0.5 + sr() * 0.5) + '"/>';
+      return wrap('#0b1033', '#3a1e6e', st + '<circle cx="820" cy="170" r="90" fill="#ff8a65"/><ellipse cx="820" cy="170" rx="150" ry="28" fill="none" stroke="#ffe0b2" stroke-width="10" transform="rotate(-18 820 170)"/>' +
+        '<circle cx="150" cy="560" r="70" fill="#eeeeee"/><circle cx="125" cy="540" r="14" fill="#cfcfcf"/><circle cx="170" cy="585" r="10" fill="#cfcfcf"/>' + emo(560, 600, 70, '🚀') + emo(330, 160, 50, '🛸') + emo(700, 480, 40, '⭐'));
+    },
+    granja: function () {
+      return wrap('#aee2ff', '#fff4d6', '<circle cx="140" cy="110" r="60" fill="#ffd93b"/>' + cloud(520, 110, 1) + cloud(830, 70, .8) +
+        '<ellipse cx="300" cy="680" rx="650" ry="250" fill="#9ccc65"/><ellipse cx="900" cy="690" rx="500" ry="220" fill="#8bc34a"/>' +
+        '<rect x="700" y="330" width="210" height="170" fill="#d84315"/><polygon points="680,335 805,240 930,335" fill="#8d2a0b"/><rect x="775" y="400" width="60" height="100" fill="#fff3e0"/>' +
+        '<line x1="775" y1="400" x2="835" y2="500" stroke="#d84315" stroke-width="6"/><line x1="835" y1="400" x2="775" y2="500" stroke="#d84315" stroke-width="6"/>' +
+        emo(200, 560, 70, '🐄') + emo(420, 600, 60, '🐑') + emo(600, 560, 54, '🐓') + emo(110, 640, 44, '🌻'));
+    },
+    playa: function () {
+      return wrap('#87ceeb', '#fde4a9', '<circle cx="820" cy="120" r="70" fill="#ffd93b"/>' + cloud(300, 120, 1) +
+        '<rect y="360" width="1000" height="140" fill="#3fa9d6"/><path d="M0 360 q50 -18 100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 V380 H0Z" fill="#7fd0f0"/>' +
+        '<path d="M0 480 Q300 440 600 480 T1000 470 V700 H0 Z" fill="#f6d38b"/>' +
+        '<path d="M150 690 q-10 -140 40 -270" stroke="#8d6e63" stroke-width="22" fill="none"/>' +
+        '<g fill="#2e7d32"><ellipse cx="160" cy="420" rx="90" ry="22" transform="rotate(-25 160 420)"/><ellipse cx="240" cy="420" rx="90" ry="22" transform="rotate(25 240 420)"/><ellipse cx="200" cy="400" rx="20" ry="80"/></g>' +
+        emo(620, 600, 80, '⛱️') + emo(860, 640, 46, '🦀') + emo(420, 660, 40, '🐚') + emo(700, 330, 46, '⛵'));
+    },
+    bosque: function () {
+      var t = ''; seed = 9;
+      for (var i = 0; i < 12; i++) { var x = i * 90 + sr() * 30, h = 180 + sr() * 120, y = 560 - h;
+        t += '<rect x="' + (x - 10) + '" y="' + (y + h - 20) + '" width="20" height="60" fill="#6d4c41"/><polygon points="' + (x - 70) + ',' + (y + h) + ' ' + x + ',' + y + ' ' + (x + 70) + ',' + (y + h) + '" fill="' + (i % 2 ? '#2e7d32' : '#388e3c') + '"/>'; }
+      return wrap('#d8f0c6', '#9ccc65', t + '<rect y="600" width="1000" height="100" fill="#7cb342"/>' +
+        '<g><rect x="306" y="610" width="18" height="40" fill="#fff3e0"/><ellipse cx="315" cy="612" rx="40" ry="24" fill="#e53935"/><circle cx="302" cy="606" r="6" fill="#fff"/><circle cx="326" cy="612" r="5" fill="#fff"/></g>' +
+        emo(700, 660, 54, '🦔') + emo(880, 630, 50, '🐿️') + emo(140, 660, 44, '🍄'));
+    },
+    nieve: function () {
+      var s = ''; seed = 13;
+      for (var i = 0; i < 60; i++) s += '<circle cx="' + (sr() * 1000) + '" cy="' + (sr() * 700) + '" r="' + (2 + sr() * 5) + '" fill="#fff"/>';
+      return wrap('#bfe3ff', '#f4fbff', '<polygon points="0,560 220,230 430,560" fill="#90bde6"/><polygon points="160,330 220,230 280,330 250,310 220,340 190,310" fill="#fff"/>' +
+        '<polygon points="330,580 600,180 870,580" fill="#7fb0dd"/><polygon points="520,300 600,180 680,300 640,280 600,320 560,280" fill="#fff"/>' +
+        '<path d="M0 560 Q500 500 1000 560 V700 H0Z" fill="#ffffff"/>' + s + emo(820, 640, 80, '⛄') + emo(180, 650, 56, '🐧'));
+    },
+    cielo: function () {
+      var cols = ['#ff6b6b', '#ffa41b', '#ffd93b', '#6bcb77', '#4d96ff', '#9b5de5'], r = '';
+      for (var i = 0; i < 6; i++) r += '<path d="M120 640 A' + (380 - i * 28) + ' ' + (380 - i * 28) + ' 0 0 1 ' + (880 - i * 0) + ' 640" stroke="' + cols[i] + '" stroke-width="26" fill="none" transform="translate(' + (i * 28) + ' 0) scale(' + 1 + ')"/>';
+      return wrap('#ffd6e8', '#d6ecff', cloud(160, 140, 1.1) + cloud(840, 200, 1) + cloud(500, 90, .8) +
+        '<g transform="translate(-40 0)">' + r + '</g>' + emo(160, 420, 70, '🎈') + emo(860, 470, 60, '🎈') + emo(780, 120, 46, '🌟') + cloud(160, 650, 1.4) + cloud(860, 660, 1.4));
+    },
+    castillo: function () {
+      var st = ''; seed = 17;
+      for (var i = 0; i < 30; i++) st += emo(sr() * 1000, sr() * 300, 14 + sr() * 16, '✨', .8);
+      return wrap('#f3c8ff', '#ffe9c7', st + '<rect x="330" y="300" width="340" height="300" fill="#ce93d8"/><rect x="290" y="230" width="90" height="370" fill="#ba68c8"/><rect x="620" y="230" width="90" height="370" fill="#ba68c8"/>' +
+        '<polygon points="280,235 335,140 390,235" fill="#ec407a"/><polygon points="610,235 665,140 720,235" fill="#ec407a"/><polygon points="430,305 500,200 570,305" fill="#ec407a"/>' +
+        '<path d="M455 600 v-90 a45 45 0 0 1 90 0 v90 Z" fill="#7b1fa2"/><path d="M0 600 Q500 560 1000 600 V700 H0Z" fill="#a5d6a7"/>' + emo(150, 620, 70, '🦄') + emo(860, 600, 56, '🌈'));
+    }
+  };
+  var bgNow = '';
+  function setBg(name) {
+    if (bgNow === name) return; bgNow = name;
+    try { $('bg').innerHTML = SCENES[name](); } catch (e) { $('bg').innerHTML = ''; }
+  }
+
+  /* =================== NIVELES Y JUEGOS =================== */
+  var LEVELS = [
+    { id: 'ini', name: 'Iniciación a la lectura', short: 'Iniciación', icon: '🐣', color: '#FF6B6B', desc: 'Letras y sonidos', bg: 'jardin',
+      games: ['globos', 'empieza', 'traza', 'memoria', 'palmadas'] },
+    { id: 'bas', name: 'Lector básico', short: 'Básico', icon: '📗', color: '#4CB963', desc: 'Sílabas y palabras sencillas', bg: 'granja',
+      games: ['letras', 'parejas', 'silabas', 'palabras', 'construye'] },
+    { id: 'int', name: 'Lector intermedio', short: 'Intermedio', icon: '📘', color: '#4D96FF', desc: 'Palabras largas y frases cortas', bg: 'mar',
+      games: ['pegadas', 'tren', 'cuenta', 'largas', 'verdadI'] },
+    { id: 'adv', name: 'Lector avanzado', short: 'Avanzado', icon: '📕', color: '#9B5DE5', desc: 'Frases y adivinanzas', bg: 'castillo',
+      games: ['completa', 'ordena', 'eligeFrase', 'verdadA', 'adivina'] }
+  ];
+  var GINFO = {
+    globos:   { t: 'Globos de letras', i: '🎈', bg: 'cielo', c: '#FF6B6B', intro: 'Van a subir muchos globos con letras. Escucha la letra y explota los globos que la tienen. ¡Pum!' },
+    empieza:  { t: '¿Con qué empieza?', i: '🔎', bg: 'jardin', c: '#FFA41B', intro: 'Mira el dibujo y escucha su nombre. Toca la letra con la que empieza.' },
+    traza:    { t: 'Repasa la letra', i: '✍️', bg: 'bosque', c: '#4CB963', intro: 'Pasa el dedo por encima de la letra gris hasta pintarla entera. Si te sales, no pasa nada.' },
+    memoria:  { t: 'Memoria', i: '🃏', bg: 'espacio', c: '#9B5DE5', intro: 'Las cartas están boca abajo. Levanta dos cada vez y busca cada letra con el dibujo que empieza por ella.' },
+    palmadas: { t: 'Palmadas', i: '👏', bg: 'granja', c: '#4D96FF', intro: 'Escucha la palabra y da una palmada por cada trocito. Después toca cuántas palmadas tiene.' },
+    letras:   { t: 'Letras', i: '🔤', bg: 'selva', c: '#FF6B6B', intro: 'Escucha la letra y toca la que es. Fíjate bien, que algunas se parecen.' },
+    parejas:  { t: 'Parejas', i: 'Aa', bg: 'castillo', c: '#9B5DE5', intro: 'Cada letra tiene una mayúscula y una minúscula. Busca su pareja.' },
+    silabas:  { t: 'Sílabas', i: '🎵', bg: 'mar', c: '#4D96FF', intro: 'Escucha la sílaba y toca la que suena. Por ejemplo: ma, me, mi, mo, mu.' },
+    palabras: { t: 'Palabras', i: '🖼️', bg: 'jardin', c: '#4CB963', intro: 'Lee la palabra y toca el dibujo que es. Si necesitas ayuda, toca el altavoz.' },
+    construye:{ t: 'Construye', i: '🧩', bg: 'playa', c: '#FFA41B', intro: 'Mira el dibujo y forma su palabra tocando las sílabas en orden.' },
+    pegadas:  { t: 'Palabras pegadas', i: '🔗', bg: 'cielo', c: '#FF6B6B', intro: 'Hay palabras que se forman juntando dos. Por ejemplo: gira y sol, girasol. Elige los dos trozos en orden.' },
+    tren:     { t: 'El tren de palabras', i: '🚂', bg: 'granja', c: '#FFA41B', intro: 'Las palabras se han bajado del tren. Súbelas en orden para formar la frase del dibujo.' },
+    cuenta:   { t: 'Lee y cuenta', i: '🔢', bg: 'selva', c: '#4CB963', intro: 'Lee lo que pone, por ejemplo, tres peras, y toca el dibujo que tiene justo eso.' },
+    largas:   { t: 'Palabras largas', i: '🐛', bg: 'bosque', c: '#4D96FF', intro: 'Forma palabras largas tocando las sílabas en orden. Cuidado, que hay alguna de más.' },
+    verdadI:  { t: '¿Verdad o mentira?', i: '🤔', bg: 'playa', c: '#9B5DE5', intro: 'Lee la frase y piensa. Si es verdad, toca el verde. Si es mentira, toca el rojo.' },
+    completa: { t: 'Completa la frase', i: '✏️', bg: 'jardin', c: '#FF6B6B', intro: 'A cada frase le falta una palabra. Léela y elige la que tiene sentido.' },
+    ordena:   { t: 'Ordena la frase', i: '🔀', bg: 'nieve', c: '#FFA41B', intro: 'Las palabras están desordenadas. Tócalas en orden para formar una frase.' },
+    eligeFrase:{ t: 'Lee y elige', i: '📖', bg: 'mar', c: '#4CB963', intro: 'Lee la frase con atención y toca el dibujo que dice exactamente eso.' },
+    verdadA:  { t: '¿Verdad o mentira?', i: '🧐', bg: 'espacio', c: '#4D96FF', intro: 'Ahora las frases son más largas. Léelas y decide si son verdad o mentira.' },
+    adivina:  { t: 'Adivinanzas', i: '❓', bg: 'castillo', c: '#9B5DE5', intro: 'Lee la adivinanza y toca el dibujo que es la respuesta.' }
+  };
+  var QUIET = { globos: 1, empieza: 1, palmadas: 1, letras: 1, parejas: 1, silabas: 1 }; // juegos en los que hay que escuchar
+  function levelOf(g) { var r = null; LEVELS.forEach(function (L) { if (L.games.indexOf(g) > -1) r = L; }); return r; }
+
+  /* =================== PANTALLAS =================== */
+  function show(idS) { var s = document.querySelectorAll('.screen'); for (var i = 0; i < s.length; i++) s[i].className = 'screen' + (s[i].id === idS ? ' on' : ''); }
+  var rudiEls = document.querySelectorAll('.rudi'); for (var r = 0; r < rudiEls.length; r++) rudiEls[r].innerHTML = RUDI;
+  var avEls = document.querySelectorAll('.avatar'); for (var a2 = 0; a2 < avEls.length; a2++) avEls[a2].innerHTML = avatarSVG();
+
+  function goSplash() { setBg('cielo'); $('splashHi').textContent = S.name ? '¡Hola, ' + S.name + '!' : ''; show('splash'); }
+  $('playBtn').addEventListener('click', function () {
+    unlockAudio(); loadVoices();
+    if (!S.name) return goName();
+    if (!S.level) return goLevels();
+    goMenu();
+    say([LINES.hello, nm()]);
+  });
+
+  function goName() {
+    setBg('jardin'); show('nameScr'); music(true);
+    var inp = $('nameInp'); inp.value = S.name || ''; checkName();
+    say(LINES.welcome);
+    setTimeout(function () { try { inp.focus(); } catch (e) {} }, 400);
+  }
+  function checkName() { $('nameOk').disabled = !$('nameInp').value.trim(); }
+  $('nameInp').addEventListener('input', checkName);
+  $('nameInp').addEventListener('keydown', function (e) { if (e.keyCode === 13) { e.preventDefault(); $('nameOk').click(); } });
+  $('nameOk').addEventListener('click', function () {
+    var v = $('nameInp').value.replace(/[<>]/g, '').trim().slice(0, 20);
+    if (!v) return;
+    S.name = cap(v); save();
+    try { $('nameInp').blur(); } catch (e) {}
+    say([LINES.hello, S.name]);
+    if (!S.accepted) goWarn(); else goLevels(true);
+  });
+
+  function goWarn(fromParents) {
+    setBg('nieve'); show('warnScr'); music(true);
+    $('warnOk').onclick = function () { S.accepted = true; save(); if (fromParents) goMenu(); else goLevels(true); };
+  }
+  function goLevels(keep) {
+    setBg('cielo'); show('levelScr'); music(true);
+    $('levelHi').textContent = S.name ? S.name + ', elige tu nivel' : 'Elige tu nivel';
+    var box = $('levelList'); box.innerHTML = '';
+    LEVELS.forEach(function (L) {
+      var b = el('button', 'level-card', '<span class="lv-ico">' + L.icon + '</span><span class="lv-txt"><b>' + L.name + '</b><small>' + L.desc + '</small></span>');
+      b.style.background = L.color;
+      b.onclick = function () { S.level = L.id; save(); goMenu(); say(L.name); };
+      box.appendChild(b);
+    });
+    if (keep) sayQ(LINES.chooseLevel); else say(LINES.chooseLevel);
+  }
+  $('changeLevel').addEventListener('click', function () { goLevels(); });
+
+  function curLevel() { var L = LEVELS[1]; LEVELS.forEach(function (x) { if (x.id === S.level) L = x; }); return L; }
+  function goMenu() {
+    clearTimers(); G = null;
+    var L = curLevel(); setBg(L.bg); show('menu'); music(true);
+    $('menuTitle').innerHTML = '¡A leer con Rudi!';
+    var mi = medalInfo(L);
+    $('menuSub').textContent = (S.name ? S.name + ' · ' : '') + L.icon + ' ' + L.name + (mi.cup ? ' · 🏆' : mi.medal ? ' · 🏅' : '');
+    var box = $('gameList'); box.innerHTML = '';
+    L.games.forEach(function (g) {
+      var I = GINFO[g], n = S.done[g] || 0;
+      var b = el('button', 'big-btn', '<span class="ico' + (I.i === 'Aa' ? ' txt' : '') + '">' + I.i + '</span>' + I.t + (n ? '<span class="cnt">⭐ ' + n + '</span>' : ''));
+      b.style.background = I.c;
+      b.onclick = function () { openIntro(g); };
+      box.appendChild(b);
+    });
+    var uniq = uniqueStickers();
+    $('album').innerHTML = (uniq.length ? '<span class="alb-last">' + uniq.slice(-6).join('') + '</span>' : '<span class="empty">⭐ ¡Juega para ganar pegatinas! ⭐</span>') +
+      '<span class="alb-btn">📒 Mi álbum · ' + uniq.length + '/' + STICKERS.length + '</span>';
+  }
+
+  function uniqueStickers() { var seen = {}, out = []; S.stickers.forEach(function (x) { if (!seen[x]) { seen[x] = 1; out.push(x); } }); return out; }
+  function openAlbum() {
+    var counts = {}; S.stickers.forEach(function (x) { counts[x] = (counts[x] || 0) + 1; });
+    var have = uniqueStickers().length;
+    $('albumTitle').textContent = 'Álbum de ' + (S.name || 'pegatinas');
+    $('albumCount').textContent = have + ' de ' + STICKERS.length + (have === STICKERS.length ? ' · ¡Álbum completo! 🏆' : ' · ¡Sigue jugando para conseguir más!');
+    var g = $('albumGrid'); g.innerHTML = '';
+    STICKERS.forEach(function (x) {
+      var c = el('div', 'alb-slot' + (counts[x] ? ' got' : ''), counts[x] ? x + (counts[x] > 1 ? '<b>×' + counts[x] + '</b>' : '') : '?');
+      if (counts[x]) c.onclick = function () { c.className = 'alb-slot got wiggle'; sfx('pop'); setTimeout(function () { c.className = 'alb-slot got'; }, 500); };
+      g.appendChild(c);
+    });
+    $('albumScr').className = 'overlay on';
+  }
+  $('album').addEventListener('click', openAlbum);
+  $('albumClose').addEventListener('click', function () { $('albumScr').className = 'overlay'; });
+  $('albumX').addEventListener('click', function () { $('albumScr').className = 'overlay'; });
+
+  /* ---- Pantalla de explicación antes de cada juego ---- */
+  var pendingGame = null;
+  function openIntro(g) {
+    stopAll(); pendingGame = g;
+    var I = GINFO[g]; setBg(I.bg); show('intro'); music(true);
+    $('introIco').innerHTML = I.i; $('introIco').className = 'intro-ico' + (I.i === 'Aa' ? ' txt' : '');
+    $('introTitle').textContent = I.t;
+    $('introTxt').textContent = (S.name ? S.name + ', ' : '') + I.intro.charAt(0).toLowerCase() + I.intro.slice(1);
+    $('introPlay').style.background = I.c;
+    say([S.name ? S.name : null, I.intro]);
+  }
+  $('introHear').addEventListener('click', function () { if (pendingGame) say([nm(), GINFO[pendingGame].intro]); });
+  $('introPlay').addEventListener('click', function () { if (pendingGame) startGame(pendingGame); });
+  $('introBack').addEventListener('click', function () { stopAll(); goMenu(); });
+
+  /* =================== DESCANSOS (cada X minutos, con «Continuar») =================== */
+  var BREAKS = [
+    ['🧸', 'Llevas un buen rato con la pantalla y tanto tiempo de móvil no es bueno. ¿Por qué no juegas un poco con tus juguetes?'],
+    ['📚', '¿Qué tal si coges un cuento de papel y lo miras con mamá o papá?'],
+    ['🐸', '¡Hora de moverse! ¿Saltamos diez veces como las ranas?'],
+    ['👀', 'Tus ojos necesitan descansar. Mira por la ventana y cuenta los colores que ves.'],
+    ['🖍️', '¿Y si haces un dibujo de Rudi con tus pinturas?'],
+    ['🦒', 'Bebe un poco de agua y estira los brazos muy alto, como una jirafa.'],
+    ['🧱', '¿Por qué no construyes una torre muy alta con tus bloques?'],
+    ['🤗', 'Ve a dar un abrazo a alguien de tu casa. ¡Luego seguimos!'],
+    ['💃', '¡Pon música y baila un ratito!'],
+    ['🌳', 'Si podéis, salid a dar un paseo y buscad hojas y piedras bonitas.']
+  ];
+  var playStart = Date.now(), breakIdx = rnd(BREAKS.length), breakOpen = false;
+  function screenOn(idS) { var e = $(idS); return e && e.className.indexOf('on') > -1; }
+  function breakTick() {
+    if (!S.breakMin || breakOpen) return;
+    if (!(screenOn('menu') || screenOn('intro') || screenOn('game') || screenOn('levelScr'))) return;
+    if ((Date.now() - playStart) / 60000 < S.breakMin) return;
+    showBreak();
+  }
+  function showBreak() {
+    breakOpen = true;
+    var m = BREAKS[breakIdx % BREAKS.length]; breakIdx++;
+    var o = $('breakScr'), b = $('breakOk');
+    $('breakIco').textContent = m[0];
+    $('breakTitle').textContent = S.name ? '¡' + S.name + ', toca un descanso!' : '¡Toca un descanso!';
+    $('breakTxt').textContent = m[1];
+    o.className = 'overlay on'; b.disabled = true; b.textContent = '▶ Continuar';
+    var wasMusic = mus.on; music(false);
+    say([S.name || null, m[1]]);
+    setTimeout(function () { b.disabled = false; }, 3000);
+    b.onclick = function () { o.className = 'overlay'; breakOpen = false; playStart = Date.now(); stopAll(); if (wasMusic) music(true); };
+  }
+  setInterval(breakTick, 15000);
+
+  /* =================== MOTOR DE JUEGO =================== */
+  var G = null;
+  function startGame(g) {
+    clearTimers(); stopAll();
+    G = { name: g, round: 0, busy: false, failed: false, total: ROUNDS };
+    setBg(GINFO[g].bg); show('game'); drawStars(); music(!QUIET[g]);
+    GAMES[g]();
+  }
+  function drawStars() { var h = ''; for (var i = 0; i < G.total; i++) h += '<span class="' + (i < G.round ? 'got' : '') + '">⭐</span>'; $('stars').innerHTML = h; }
+  function stage() { clearTimers(); var s = $('stage'); s.innerHTML = ''; s.className = 'stage'; return s; }
+  function lvl(game, max) { return Math.min(Math.floor((S.done[game] || 0) / 2), max); }
+  function stat(key, ok) { var g = G.name; if (!S.stats[g]) S.stats[g] = {}; var st = S.stats[g][key] || [0, 0]; st[ok ? 0 : 1]++; S.stats[g][key] = st; }
+  function praise(extra) { var p = pick(PRAISE); return [p, (S.name && Math.random() < 0.6) ? S.name : null, extra || null]; }
+  function success(k, extra, opts) {
+    opts = opts || {};
+    G.busy = true; G.round++; drawStars(); confetti(8); sfx('ok');
+    if (!G.failed) { stat(k, true); G.streak = (G.streak || 0) + 1; } else G.streak = 0;
+    G.failed = false;
+    if (G.streak === 3 || G.streak === 5) { streakBadge(G.streak); confetti(18); }
+    say(praise(extra));
+    if (opts.stay) { G.busy = false; if (G.round >= G.total) later(reward, 1600); return; }
+    later(function () { if (!G) return; if (G.round >= G.total) return reward(); G.busy = false; GAMES[G.name](); }, opts.wait || 2400);
+  }
+  function oops(node, k, again) {
+    if (!G.failed) stat(k, false); G.failed = true; sfx('bad');
+    if (node) node.className += ' bad';
+    say(pick(TRY));
+    later(function () { if (node) node.className = node.className.replace(' bad', '') + (/\bcard\b/.test(node.className) ? ' off' : ''); if (again) again(); }, 1300);
+  }
+  function streakBadge(n) {
+    var b = el('div', 'streak', '🔥 ¡' + n + ' seguidas' + (S.name ? ', ' + esc(S.name) : '') + '!'); document.body.appendChild(b);
+    setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 1800);
+  }
+  function medalInfo(L) {
+    var played = 0, three = 0; L.games.forEach(function (g) { if ((S.done[g] || 0) >= 1) played++; if ((S.done[g] || 0) >= 3) three++; });
+    return { played: played, three: three, medal: played === L.games.length, cup: three === L.games.length };
+  }
+  function reward() {
+    var free = STICKERS.filter(function (s) { return S.stickers.indexOf(s) < 0; });
+    var st = pick(free.length ? free : STICKERS);
+    S.stickers.push(st); S.done[G.name] = (S.done[G.name] || 0) + 1; S.days[today()] = (S.days[today()] || 0) + 1; save();
+    gamesSinceRotate++; if (gamesSinceRotate >= 3) rotateWords();
+    $('stickerBig').textContent = st;
+    $('rewardSub').textContent = free.length ? '¡Pegatina nueva para tu álbum!' : 'Has ganado una pegatina';
+    $('rewardTitle').textContent = S.name ? '¡Muy bien, ' + S.name + '!' : '¡Muy bien!';
+    var L = levelOf(G.name), mi = medalInfo(L), msg = '';
+    if (mi.cup) msg = '🏆 ¡Tienes la copa de ' + L.short + '!';
+    else if (mi.medal) msg = '🏅 ¡Medalla de ' + L.short + '! Juega 3 veces a cada juego para ganar la copa.';
+    else msg = 'Te faltan ' + (L.games.length - mi.played) + ' juegos para la medalla 🏅';
+    $('rewardMsg').textContent = msg;
+    $('reward').className = 'overlay on'; confetti(30); sfx('win');
+    say([S.name ? S.name : null, LINES.won]);
+
+  }
+  function confetti(n) {
+    var bits = ['⭐', '✨', '🎉', '💛', '🌟', '🎈'];
+    for (var i = 0; i < n; i++) (function () {
+      var c = el('div', 'confetti', pick(bits)); c.style.left = rnd(95) + 'vw';
+      c.style.webkitAnimationDelay = c.style.animationDelay = (Math.random() * 0.8) + 's';
+      document.body.appendChild(c); setTimeout(function () { if (c.parentNode) c.parentNode.removeChild(c); }, 3500);
+    })();
+  }
+  var BAGS = {};
+  function fromBag(name, pool, k) {
+    var sig = pool.map(k).join('|'), b = BAGS[name];
+    if (!b || b.sig !== sig || !b.items.length) {
+      var last = b ? b.last : null, items = shuffle(pool);
+      if (items.length > 1 && k(items[items.length - 1]) === last) { var t = items.pop(); items.unshift(t); }
+      b = BAGS[name] = { sig: sig, items: items, last: last };
+    }
+    var it = b.items.pop(); b.last = k(it); return it;
+  }
+  function distinct(target, others, n, k) {
+    var out = [target], seen = {}; seen[k(target)] = 1;
+    for (var i = 0; i < others.length && out.length < n; i++) { var kk = k(others[i]); if (!seen[kk]) { seen[kk] = 1; out.push(others[i]); } }
+    return shuffle(out);
+  }
+  function choices(s, opts, label, cls, isRight, onRight, k, again) {
+    var row = el('div', 'options'); s.appendChild(row);
+    opts.forEach(function (o) {
+      var c = el('button', 'card' + (cls ? ' ' + cls : ''), label(o));
+      c.onclick = function () { if (G.busy || c.className.indexOf('off') > -1) return; if (isRight(o)) { c.className += ' ok'; onRight(o); } else oops(c, k, again); };
+      row.appendChild(c);
+    });
+    return row;
+  }
+  function hearBtn(s, fn) { var p = el('div', 'prompt'), h = el('button', 'hear', '🔊'); h.onclick = fn; p.appendChild(h); s.appendChild(p); return p; }
+  function textCard(s, txt, size) { var p = el('div', 'prompt'), c = el('div', 'word-card', esc(txt)); if (size) c.style.fontSize = size + 'vmin'; p.appendChild(c); s.appendChild(p); return c; }
+  function fitSize(txt, max, k) { return Math.max(4.5, Math.min(max, k / Math.max(1, txt.length))); }
+  function hint(s) { var h = el('div', 'hint', ''); s.appendChild(h); return h; }
+  // Construir con fichas (sílabas, trozos o palabras) en orden
+  function builder(s, parts, extras, onDone, opts) {
+    opts = opts || {};
+    var slots = el('div', 'slots' + (opts.words ? ' words' : '')); s.appendChild(slots);
+    var slotEls = parts.map(function () { var d = el('div', 'slot', '&nbsp;'); slots.appendChild(d); return d; });
+    var row = el('div', 'options'); s.appendChild(row);
+    var pos = 0, tiles = shuffle(parts.concat(extras));
+    tiles.forEach(function (sy) {
+      var b = el('button', 'tile' + (opts.words ? ' wtile' : ''), esc(opts.noFmt ? sy : fmt(sy)));
+      b.onclick = function () {
+        if (G.busy || b.className.indexOf('used') > -1) return;
+        if (!opts.silent) say(sy);
+        if (sy === parts[pos]) {
+          b.className += ' used'; slotEls[pos].innerHTML = esc(opts.noFmt ? sy : fmt(sy)); slotEls[pos].className = 'slot filled'; pos++;
+          if (pos === parts.length) { G.busy = true; later(function () { G.busy = false; onDone(); }, 600); }
+        } else {
+          if (!G.failed) stat(opts.key || parts.join(' '), false); G.failed = true;
+          b.className += ' bad'; later(function () { b.className = b.className.replace(' bad', ''); }, 500);
+          if (opts.onWrong) opts.onWrong();
+        }
+      };
+      row.appendChild(b);
+    });
+  }
+  function initialOf(w) { return noAcc(w.charAt(0).toLowerCase()); }
+
+  var LETTER_LEVELS = ['aeiou', 'aeioumpls', 'aeioumplstndf', 'aeioumplstndfbcgrv', ALL.join('')];
+  var PAIR_LEVELS = ['aeioumplst', 'aeioumplstndfbcgrv', ALL.join('')];
+  var INI_LEVELS = ['aeiou', 'aeioumpl', 'aeioumplstn', 'aeioumplstndfbr'];
+
+  var GAMES = {
+    /* ---------- INICIACIÓN ---------- */
+    globos: function () {
+      var pool = INI_LEVELS[lvl('globos', 3)].split(''), t = fromBag('globos', pool, id), popped = 0, need = 3;
+      var s = stage(); s.className = 'stage balloon-stage';
+      var top = el('div', 'pill', '<button class="mini-hear">🔊</button> Explota la <b class="big-letter">' + fmt(t) + '</b> <span class="cnt3"></span>');
+      s.appendChild(top);
+      var field = el('div', 'field'); s.appendChild(field);
+      var cnt = top.querySelector('.cnt3');
+      function draw() { var h = ''; for (var i = 0; i < need; i++) h += i < popped ? '💥' : '⚪'; cnt.innerHTML = h; }
+      draw();
+      var ask = function () { say(LINES.popBalloons + ' ' + NAMES[t]); };
+      G.repeat = ask; top.querySelector('.mini-hear').onclick = ask;
+      var cols = ['#FF6B6B', '#FFA41B', '#4CB963', '#4D96FF', '#9B5DE5', '#FF9FF3'];
+      function spawn() {
+        if (!G || G.name !== 'globos' || G.busy) return;
+        if (field.children.length > 7) return;
+        var isT = Math.random() < 0.42, L = isT ? t : pick(pool.filter(function (x) { return x !== t; }));
+        var b = el('button', 'balloon', '<span>' + fmt(L) + '</span>');
+        b.style.left = (4 + rnd(80)) + '%'; b.style.background = pick(cols);
+        var dur = 6 + Math.random() * 3; b.style.webkitAnimationDuration = b.style.animationDuration = dur + 's';
+        b.addEventListener('animationend', function () { if (b.parentNode) b.parentNode.removeChild(b); });
+        b.addEventListener('webkitAnimationEnd', function () { if (b.parentNode) b.parentNode.removeChild(b); });
+        b.onclick = function () {
+          if (G.busy) return;
+          if (L === t) {
+            b.className += ' pop'; b.innerHTML = '💥'; setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 300);
+            popped++; draw(); sfx('pop'); say(NAMES[t]);
+            if (popped >= need) success(t, null, { wait: 2000 });
+          } else { b.className += ' wobble'; if (!G.failed) stat(t, false); G.failed = true; say(NAMES[L]); setTimeout(function () { b.className = 'balloon'; }, 500); }
+        };
+        field.appendChild(b);
+      }
+      spawn(); spawn(); every(spawn, 900);
+      ask();
+    },
+    empieza: function () {
+      var pool = INI_LEVELS[lvl('empieza', 3)].split('');
+      var cand = EVERY.filter(function (w) { var a = w.w; return pool.indexOf(initialOf(a)) > -1 && !/^(ch|ll|qu|h|ce|ci|ge|gi|gue|gui)/.test(noAcc(a)); });
+      var t = fromBag('empieza', cand, function (x) { return x.w; }), L = initialOf(t.w);
+      var s = stage(); var pic = el('button', 'pic', t.e); s.appendChild(pic);
+      var h = hint(s);
+      var ask = function () { say([t.w, LINES.startsWith]); }; G.repeat = ask; pic.onclick = function () { say(t.w); };
+      var look = (LOOKALIKE[L] || '').split('').filter(function (x) { return pool.indexOf(x) > -1; });
+      var opts = distinct(L, shuffle(look).concat(shuffle(pool)), 3, id);
+      choices(s, opts, fmt, '', function (o) { return o === L; }, function () {
+        h.innerHTML = '<span class="hl">' + esc(fmt(t.w.charAt(0))) + '</span>' + esc(fmt(t.w.slice(1)));
+        success(t.w, t.w + ' empieza por ' + NAMES[L]);
+      }, t.w, function () { say(t.w); });
+      ask();
+    },
+    traza: function () {
+      var pool = INI_LEVELS[lvl('traza', 3)].split(''), t = fromBag('traza', pool, id), L = fmt(t);
+      var s = stage(); s.className = 'stage trace-stage';
+      var top = el('div', 'pill', '<button class="mini-hear">🔊</button> Repasa la <b class="big-letter">' + L + '</b> <button class="mini-hear clr">🧽</button>');
+      s.appendChild(top);
+      var wrapC = el('div', 'trace-wrap'); s.appendChild(wrapC);
+      var cv = document.createElement('canvas'); cv.className = 'trace'; wrapC.appendChild(cv);
+      var ask = function () { say(LINES.trace + ' ' + NAMES[t]); }; G.repeat = ask; top.querySelector('.mini-hear').onclick = ask;
+      var side = Math.min(wrapC.clientWidth || 300, wrapC.clientHeight || 300) - 16; if (side < 120) side = 240;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2), W2 = Math.round(side * dpr);
+      cv.width = W2; cv.height = W2; cv.style.width = side + 'px'; cv.style.height = side + 'px';
+      var ctx = cv.getContext('2d'), fs = Math.round(W2 * 0.82);
+      var font = 'bold ' + fs + 'px "Avenir Next Rounded","Arial Rounded MT Bold","Trebuchet MS",Arial,sans-serif';
+      function base() { ctx.clearRect(0, 0, W2, W2); ctx.fillStyle = '#d9d4e8'; ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(L, W2 / 2, W2 / 2 + fs * 0.04); }
+      base();
+      var m = document.createElement('canvas'); m.width = W2; m.height = W2; var mc = m.getContext('2d');
+      mc.font = font; mc.textAlign = 'center'; mc.textBaseline = 'middle'; mc.fillStyle = '#000'; mc.fillText(L, W2 / 2, W2 / 2 + fs * 0.04);
+      var data = mc.getImageData(0, 0, W2, W2).data, step = Math.max(4, Math.round(W2 / 70)), cells = [], cov = {};
+      for (var y = 0; y < W2; y += step) for (var x = 0; x < W2; x += step) if (data[(y * W2 + x) * 4 + 3] > 100) cells.push([x, y]);
+      var brush = fs * 0.075, drawing = false, last = null, done = false;
+      function pos(e) { var r = cv.getBoundingClientRect(), p = e.touches ? e.touches[0] : e; return [(p.clientX - r.left) * dpr, (p.clientY - r.top) * dpr]; }
+      function mark(p) {
+        ctx.strokeStyle = '#FF6B6B'; ctx.lineWidth = brush * 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo((last || p)[0], (last || p)[1]); ctx.lineTo(p[0], p[1]); ctx.stroke(); last = p;
+        cells.forEach(function (c, i) { if (!cov[i]) { var dx = c[0] - p[0], dy = c[1] - p[1]; if (dx * dx + dy * dy < brush * brush * 1.6) cov[i] = 1; } });
+      }
+      function startD(e) { if (done) return; e.preventDefault(); drawing = true; last = null; mark(pos(e)); }
+      function moveD(e) { if (!drawing) return; e.preventDefault(); mark(pos(e)); }
+      function endD() { if (!drawing) return; drawing = false; check(); }
+      function check() {
+        var n = 0; for (var k2 in cov) n++;
+        if (cells.length && n / cells.length > 0.62 && !done) { done = true; success(t, NAMES[t]); }
+      }
+      cv.addEventListener('touchstart', startD); cv.addEventListener('touchmove', moveD); cv.addEventListener('touchend', endD);
+      cv.addEventListener('mousedown', startD); cv.addEventListener('mousemove', moveD); window.addEventListener('mouseup', endD);
+      top.querySelector('.clr').onclick = function () { cov = {}; base(); };
+      ask();
+    },
+    memoria: function () {
+      var pool = INI_LEVELS[lvl('memoria', 3)].split('');
+      if (pool.length < 6) pool = pool.concat(['m', 'p']);
+      var letters = shuffle(pool).slice(0, 6), deck = [];
+      letters.forEach(function (L) {
+        var ws = EVERY.filter(function (w) { return initialOf(w.w) === L && !/^(ch|ll|h|ce|ci|ge|gi)/.test(noAcc(w.w)); });
+        if (ws.length) { var w = pick(ws); deck.push({ k: L, show: fmt(L), kind: 'l' }); deck.push({ k: L, show: w.e, kind: 'p', w: w.w }); }
+      });
+      G.total = deck.length / 2; drawStars();
+      var s = stage(); var grid = el('div', 'mem-grid'); s.appendChild(grid);
+      var open = [], lock = false;
+      G.repeat = function () { say(LINES.findPairs); };
+      shuffle(deck).forEach(function (c) {
+        var b = el('button', 'mem', '<span class="back">?</span><span class="face' + (c.kind === 'l' ? ' let' : '') + '">' + esc(c.show) + '</span>');
+        b.onclick = function () {
+          if (lock || b.className.indexOf('open') > -1) return;
+          b.className += ' open'; open.push([b, c]);
+          say(c.kind === 'l' ? NAMES[c.k] : c.w);
+          if (open.length === 2) {
+            var a = open[0], z = open[1];
+            if (a[1].k === z[1].k && a[1].kind !== z[1].kind) {
+              a[0].className += ' matched'; z[0].className += ' matched'; open = [];
+              success(a[1].k, null, { stay: true });
+            } else {
+              lock = true; if (!G.failed) stat(a[1].k, false);
+              later(function () { a[0].className = 'mem'; z[0].className = 'mem'; open = []; lock = false; }, 1100);
+            }
+          }
+        };
+        grid.appendChild(b);
+      });
+      say(LINES.findPairs);
+    },
+    palmadas: function () {
+      var lv = lvl('palmadas', 2);
+      var pool = ALL_WORDS.filter(function (w) { return w.s.length <= [3, 4, 4][lv]; }).concat(MONO.map(function (m) { var x = null; ALL_EXTRA.forEach(function (e) { if (e.w === m) x = { w: e.w, e: e.e, s: [e.w] }; }); return x; }).filter(id));
+      var t = fromBag('palmadas', pool, function (x) { return x.w; }), n = t.s.length;
+      var s = stage(); var pic = el('button', 'pic', t.e); s.appendChild(pic);
+      var h = hint(s);
+      var ask = function () { say([t.w, LINES.howManyClaps]); }; G.repeat = ask; pic.onclick = function () { say(t.w); };
+      choices(s, [1, 2, 3, 4], function (o) { var c = ''; for (var i = 0; i < o; i++) c += '👏'; return '<span class="claps">' + c + '</span><small>' + o + '</small>'; }, 'clap',
+        function (o) { return o === n; }, function () { h.innerHTML = t.s.map(function (x) { return esc(fmt(x)); }).join(' <span class="dot">·</span> '); success(t.w, t.s.join('... ')); },
+        t.w, function () { say(t.s.join('... ')); });
+      ask();
+    },
+
+    /* ---------- LECTOR BÁSICO ---------- */
+    letras: function () {
+      var pool = LETTER_LEVELS[lvl('letras', 4)].split(''), t = fromBag('letras', pool, id);
+      var s = stage(); hearBtn(s, function () { ask(); }); var h = hint(s);
+      var ask = function () { say(LINES.whereIs + ' ' + NAMES[t] + '?'); }; G.repeat = ask;
+      var look = (LOOKALIKE[t] || '').split('').filter(function (x) { return pool.indexOf(x) > -1; });
+      choices(s, distinct(t, shuffle(look).concat(shuffle(pool)), 3, id), fmt, '', function (o) { return o === t; }, function () {
+        h.innerHTML = esc(fmt(t)) + ' de ' + esc(fmt(HINT[t][0])) + ' ' + HINT[t][1]; success(t, NAMES[t] + ', de ' + HINT[t][0]);
+      }, t, ask);
+      ask();
+    },
+    parejas: function () {
+      var pool = PAIR_LEVELS[lvl('parejas', 2)].split(''), t = fromBag('parejas', pool, id), up = Math.random() < 0.5;
+      var conv = function (x) { return up ? x : x.toUpperCase(); };
+      var s = stage(); var p = el('div', 'prompt pair'); var big = el('button', 'word-card', up ? t.toUpperCase() : t); big.style.border = 'none';
+      p.appendChild(big); p.appendChild(el('div', 'q', '→')); var box = el('div', 'q2 flexc', '?'); p.appendChild(box); s.appendChild(p);
+      var h = hint(s);
+      var ask = function () { say([NAMES[t], up ? LINES.pairUpper : LINES.pairLower]); }; G.repeat = ask; big.onclick = ask;
+      choices(s, distinct(t, shuffle((LOOKALIKE[t] || '').split('')).concat(shuffle(ALL)), 3, id), conv, '', function (o) { return o === t; }, function () {
+        box.innerHTML = conv(t); box.style.borderStyle = 'solid'; box.style.borderColor = '#4CB963'; box.style.background = '#E3F8E7';
+        h.innerHTML = t.toUpperCase() + ' ' + t + ' · ' + HINT[t][1]; success(t);
+      }, t, ask);
+      ask();
+    },
+    silabas: function () {
+      var fams = SYL_LEVELS[lvl('silabas', 5)], pool = []; fams.forEach(function (f) { pool = pool.concat(FAM[f]); });
+      var t = fromBag('silabas', pool, id), vow = t.slice(-1);
+      var near = pool.filter(function (x) { return x !== t && (x.slice(0, -1) === t.slice(0, -1) || x.slice(-1) === vow); });
+      var s = stage(); hearBtn(s, function () { say(t); }); hint(s);
+      G.repeat = function () { say(t); };
+      choices(s, distinct(t, shuffle(near).concat(shuffle(pool)), 3, id), fmt, 'syl', function (o) { return o === t; }, function () { success(t, t); }, t, function () { say(t); });
+      say([LINES.touch, t]);
+    },
+    palabras: function () {
+      var lv = lvl('palabras', 2), pool = WORDS.filter(function (w) { return lv >= 1 || w.s.length <= 2; });
+      if (lv >= 2) pool = pool.concat(EXTRA);
+      var t = fromBag('palabras', pool, function (x) { return x.w; });
+      var s = stage(); textCard(s, fmt(t.w), fitSize(t.w, 17, 150)); hint(s);
+      G.repeat = function () { say(t.w); };
+      choices(s, distinct(t, shuffle(WORDS.concat(EXTRA)), 3, function (x) { return x.e; }), function (o) { return o.e; }, 'emo', function (o) { return o.w === t.w; }, function () { success(t.w, t.w); }, t.w);
+      say(LINES.whatSays);
+    },
+    construye: function () {
+      var lv = lvl('construye', 2), pool = WORDS.filter(function (w) { return w.s.length <= [2, 3, 4][lv]; });
+      var t = fromBag('construye', pool, function (x) { return x.w; }), others = [];
+      ALL_WORDS.forEach(function (w) { w.s.forEach(function (x) { if (others.indexOf(x) < 0 && t.s.indexOf(x) < 0) others.push(x); }); });
+      var s = stage(); var pic = el('button', 'pic', t.e); s.appendChild(pic);
+      G.repeat = function () { say(t.w); }; pic.onclick = G.repeat;
+      builder(s, t.s, shuffle(others).slice(0, Math.min(lv + 1, 2)), function () { success(t.w, t.s.join('... ') + '... ' + t.w); }, { key: t.w });
+      say([LINES.build, t.w]);
+    },
+
+    /* ---------- LECTOR INTERMEDIO ---------- */
+    pegadas: function () {
+      var t = fromBag('pegadas', COMPOUNDS, function (x) { return x[0]; }), parts = [t[2], t[3]], ex = [];
+      shuffle(COMPOUNDS).forEach(function (c) { if (c[0] !== t[0] && ex.length < 2) ex.push(Math.random() < 0.5 ? c[2] : c[3]); });
+      var s = stage(); var pic = el('button', 'pic', t[1]); s.appendChild(pic);
+      var h = hint(s);
+      G.repeat = function () { say(t[0]); }; pic.onclick = G.repeat;
+      builder(s, parts, ex, function () { h.innerHTML = esc(fmt(t[2])) + ' + ' + esc(fmt(t[3])) + ' = <b>' + esc(fmt(t[0])) + '</b>'; success(t[0], t[2] + '... ' + t[3] + '... ' + t[0]); }, { key: t[0], words: true });
+      say([LINES.build, t[0]]);
+    },
+    tren: function () {
+      var t = fromBag('tren', PHRASES, function (x) { return x[0]; }), parts = t[0].split(' ');
+      var s = stage(); s.appendChild(el('div', 'pic small', t[1]));
+      var h = hint(s);
+      G.repeat = function () { say(t[0]); };
+      builder(s, parts, [], function () { h.innerHTML = '🚂 ' + esc(fmt(cap(t[0]))); success(t[0], t[0]); }, { key: t[0], words: true, silent: false });
+      var sl = s.querySelector('.slots'); if (sl) sl.className += ' train';
+      say(LINES.orderIt);
+    },
+    cuenta: function () {
+      var pool = EVERY.filter(function (w) { return w.e.length <= 2 && w.w.indexOf(' ') < 0 && NOCOUNT.indexOf(w.w) < 0; });
+      var noun = pick(pool), num = pick(NUMS), txt = num[0] + ' ' + plural(noun.w);
+      var other = pick(pool.filter(function (x) { return x.e !== noun.e; }));
+      var opts = [{ e: noun.e, n: num[1], ok: 1 }];
+      var nn = NUMS.filter(function (x) { return x[1] !== num[1]; }); opts.push({ e: noun.e, n: nn[0][1] }); opts.push({ e: other.e, n: num[1] });
+      var s = stage(); textCard(s, fmt(txt), fitSize(txt, 13, 120)); hint(s);
+      G.repeat = function () { say(txt); };
+      choices(s, shuffle(opts), function (o) { var r = ''; for (var i = 0; i < o.n; i++) r += o.e; return '<span class="multi m' + o.n + '">' + r + '</span>'; }, 'emo multi-card',
+        function (o) { return !!o.ok; }, function () { success(txt, txt); }, txt);
+      say(LINES.readChoose);
+    },
+    largas: function () {
+      var pool = ALL_WORDS.filter(function (w) { return w.s.length >= 3; });
+      var t = fromBag('largas', pool, function (x) { return x.w; }), others = [];
+      ALL_WORDS.forEach(function (w) { w.s.forEach(function (x) { if (others.indexOf(x) < 0 && t.s.indexOf(x) < 0) others.push(x); }); });
+      var s = stage(); var pic = el('button', 'pic', t.e); s.appendChild(pic);
+      G.repeat = function () { say(t.w); }; pic.onclick = G.repeat;
+      builder(s, t.s, shuffle(others).slice(0, 2), function () { success(t.w, t.w); }, { key: t.w, silent: true });
+      say(LINES.build);
+    },
+    verdadI: function () { truthGame('verdadI', TRUTH_I, 11); },
+
+    /* ---------- LECTOR AVANZADO ---------- */
+    completa: function () {
+      var t = fromBag('completa', CLOZE, function (x) { return x[0]; });
+      var s = stage(); var full = t[0].replace('___', t[1]);
+      var c = textCard(s, '', fitSize(t[0], 8.5, 230)); c.className += ' sentence';
+      c.innerHTML = esc(fmt(t[0])).replace('___', '<span class="gap">?</span>');
+      hint(s);
+      G.repeat = function () { say(t[0].replace('___', '...')); };
+      choices(s, shuffle([t[1]].concat(t[2])), function (o) { return esc(fmt(o)); }, 'wordopt', function (o) { return o === t[1]; }, function () {
+        c.innerHTML = esc(fmt(full)).replace(esc(fmt(t[1])), '<span class="gap ok">' + esc(fmt(t[1])) + '</span>'); success(t[0], full);
+      }, t[0]);
+      say(LINES.complete);
+    },
+    ordena: function () {
+      var t = fromBag('ordena', ORDER, function (x) { return x[0]; }), parts = t[0].split(' ');
+      var s = stage(); s.appendChild(el('div', 'pic small', t[1]));
+      var h = hint(s);
+      G.repeat = function () { say(t[0]); };
+      builder(s, parts, [], function () { h.innerHTML = esc(fmt(t[0])) + '.'; success(t[0], t[0]); }, { key: t[0], words: true, silent: true, noFmt: false });
+      say(LINES.orderIt);
+    },
+    eligeFrase: function () {
+      var t = fromBag('eligeFrase', PICK, function (x) { return x[0]; });
+      var s = stage(); var c = textCard(s, fmt(t[0]), fitSize(t[0], 9, 230)); c.className += ' sentence'; hint(s);
+      G.repeat = function () { say(t[0]); };
+      choices(s, shuffle([t[1]].concat(t[2])), function (o) { return o; }, 'emo pair-emo', function (o) { return o === t[1]; }, function () { success(t[0], t[0]); }, t[0]);
+      say(LINES.readChoose);
+    },
+    verdadA: function () { truthGame('verdadA', TRUTH_A, 8); },
+    adivina: function () {
+      var t = fromBag('adivina', RIDDLES, function (x) { return x[0]; });
+      var s = stage(); var c = textCard(s, fmt(t[0]), fitSize(t[0], 7.5, 300)); c.className += ' sentence'; hint(s);
+      G.repeat = function () { say(t[0]); };
+      choices(s, shuffle([t[1]].concat(t[3])), function (o) { return o; }, 'emo', function (o) { return o === t[1]; }, function () { success(t[0], cap(t[2])); }, t[0]);
+      say(LINES.riddle);
+    }
+  };
+  function truthGame(name, data, max) {
+    var t = fromBag(name, data, function (x) { return x[0]; });
+    var s = stage(); s.appendChild(el('div', 'pic small', t[2]));
+    var c = textCard(s, fmt(t[0]) + '.', fitSize(t[0], max, 230)); c.className += ' sentence'; var h = hint(s);
+    G.repeat = function () { say(t[0]); };
+    var row = choices(s, [1, 0], function (o) { return o ? '✅<small>Verdad</small>' : '❌<small>Mentira</small>'; }, 'tf', function (o) { return o === t[1]; }, function () {
+      h.innerHTML = t[1] ? '¡Es verdad!' : '¡Es mentira!'; success(t[0], t[1] ? LINES.isTrue : LINES.isFalse);
+    }, t[0]);
+    say(LINES.trueFalse);
+  }
+
+  /* =================== BOTONES GENERALES =================== */
+  $('homeBtn').addEventListener('click', function () { stopAll(); goMenu(); });
+  $('againBtn').addEventListener('click', function () { if (G && G.repeat) G.repeat(); });
+  $('rwHome').addEventListener('click', function () { $('reward').className = 'overlay'; goMenu(); });
+  $('rwAgain').addEventListener('click', function () { $('reward').className = 'overlay'; startGame(G.name); });
+
+  /* ---- Zona de padres ---- */
+  function summaryText() {
+    var lines = ['PROGRESO DE LECTURA - ¡A leer con Rudi! (Rodolfo López Martínez, CC BY-NC 4.0)', 'Nombre: ' + (S.name || '-') + '   Nivel elegido: ' + curLevel().name,
+      'Actualizado: ' + (S.updated ? new Date(S.updated).toLocaleString('es-ES') : 'todavía sin partidas'), 'Pegatinas: ' + S.stickers.length, ''];
+    LEVELS.forEach(function (L) {
+      lines.push(L.icon + ' ' + L.name);
+      L.games.forEach(function (g) {
+        var st = S.stats[g] || {}, ok = 0, ko = 0, hard = [];
+        for (var k in st) { ok += st[k][0]; ko += st[k][1]; if (st[k][1] > 0) hard.push([k, st[k][1]]); }
+        hard.sort(function (a, b) { return b[1] - a[1]; });
+        lines.push('   ' + GINFO[g].t + ': ' + (S.done[g] || 0) + ' partidas · aciertos ' + ok + ', fallos ' + ko + (hard.length ? ' · le cuesta: ' + hard.slice(0, 5).map(function (x) { return x[0]; }).join(', ') : ''));
+      });
+    });
+    return lines.join('\n');
+  }
+  var resetArmed = false;
+  function openParents() {
+    loadVoices();
+    $('caseBtn').textContent = S.upper ? 'Letras: MAYÚSCULAS' : 'Letras: minúsculas';
+    $('speedBtn').textContent = S.slow ? 'Voz: lenta' : 'Voz: normal';
+    $('recBtn').textContent = S.rec === false ? 'Voz grabada (Gemini): no' : 'Voz grabada (Gemini): sí';
+    $('recBtn').style.display = (typeof VOZ !== 'undefined' && VOZ.__n) ? '' : 'none';
+    $('musicBtn').textContent = S.music === false ? 'Música: no' : 'Música: sí';
+    $('sfxBtn').textContent = S.sfx === false ? 'Sonidos: no' : 'Sonidos: sí';
+    $('breakBtn').textContent = S.breakMin ? 'Aviso de descanso cada ' + S.breakMin + ' min' : 'Sin aviso de descanso';
+    var sel = $('voiceSel'); sel.innerHTML = '';
+    if (!voices.length) sel.innerHTML = '<option>Voz del sistema</option>';
+    voices.forEach(function (v) { var o = document.createElement('option'); o.value = v.name; o.textContent = v.name + ' (' + v.lang + ')'; if (voice && v.name === voice.name) o.selected = true; sel.appendChild(o); });
+    $('voiceInfo').innerHTML = voice ? 'Voz en uso: <b>' + esc(voice.name) + '</b>' + (/^es-ES/i.test(voice.lang.replace('_', '-')) ? '' : ' (no es de España)') : 'No hay voces en español instaladas.';
+    $('progressTxt').value = summaryText();
+    $('resetBtn').textContent = 'Borrar progreso'; resetArmed = false;
+    $('parents').className = 'overlay on';
+  }
+  $('parentBtn').addEventListener('click', openParents);
+  $('closeParents').addEventListener('click', function () { $('parents').className = 'overlay'; goMenu(); });
+  $('caseBtn').addEventListener('click', function () { S.upper = !S.upper; save(); openParents(); });
+  $('sfxBtn').addEventListener('click', function () { S.sfx = S.sfx === false; save(); openParents(); sfx('ok'); });
+  $('breakBtn').addEventListener('click', function () { var opts = [10, 15, 20, 30, 0], i = opts.indexOf(S.breakMin); S.breakMin = opts[(i + 1) % opts.length]; save(); playStart = Date.now(); openParents(); });
+  $('recBtn').addEventListener('click', function () { S.rec = S.rec === false; save(); openParents(); say(['Hola', S.name || null, 'soy Rudi. ¡Vamos a leer!']); });
+  $('musicBtn').addEventListener('click', function () { S.music = S.music === false; save(); if (S.music) { unlockAudio(); musicOn(); } else musicOff(); openParents(); });
+  $('speedBtn').addEventListener('click', function () { S.slow = !S.slow; save(); openParents(); say(LINES.slow); });
+  $('voiceSel').addEventListener('change', function () { S.voice = this.value; save(); loadVoices(); openParents(); say(['Hola', S.name || null, 'soy Rudi']); });
+  $('voiceTest').addEventListener('click', function () { unlockAudio(); say(['Hola', S.name || null, 'soy Rudi. ¡Vamos a leer!']); });
+  $('nameBtn').addEventListener('click', function () { $('parents').className = 'overlay'; goName(); });
+  $('warnBtn').addEventListener('click', function () { $('parents').className = 'overlay'; goWarn(true); });
+  $('lvlBtn').addEventListener('click', function () { $('parents').className = 'overlay'; goLevels(); });
+  $('copyBtn').addEventListener('click', function () {
+    var t = $('progressTxt'), b = this; function done() { b.textContent = '¡Copiado!'; }
+    try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t.value).then(done, function () { t.select(); try { document.execCommand('copy'); done(); } catch (e) {} });
+      else { t.select(); t.setSelectionRange(0, 999999); document.execCommand('copy'); done(); } } catch (e) {}
+  });
+  $('resetBtn').addEventListener('click', function () {
+    if (!resetArmed) { resetArmed = true; this.textContent = '¿Seguro? Toca otra vez'; return; }
+    var n = S.name, lv = S.level, up = S.upper, sl = S.slow, vo = S.voice; S = blank(); S.name = n; S.level = lv; S.upper = up; S.slow = sl; S.voice = vo; save(); openParents();
+  });
+
+  /* =================== PANTALLA COMPLETA =================== */
+  var D = document, DE = document.documentElement;
+  function fsActive() { return !!(D.fullscreenElement || D.webkitFullscreenElement); }
+  function toast(msg) { $('toastTxt').innerHTML = msg; $('toast').className = 'toast on'; }
+  $('toastOk').addEventListener('click', function () { $('toast').className = 'toast'; });
+  var inFrame = false; try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
+  var standalone = !!(window.navigator.standalone || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches));
+  var APP_URL = 'https://rlopmar783-svg.github.io/a-leer-con-rudi/';
+  function updateFs() {
+    var on = fsActive(), fab = $('fsFab');
+    fab.querySelector('.fs-ico').textContent = on ? '✕' : '⛶';
+    fab.querySelector('.fs-lbl').textContent = on ? 'Salir' : (inFrame && !canFs() ? 'Abrir en grande' : 'Pantalla completa');
+    fab.setAttribute('aria-label', on ? 'Salir de pantalla completa' : 'Pantalla completa');
+    fab.className = 'fs-fab' + (on ? ' on' : '') + (standalone && !on ? ' hidden' : '');
+    setTimeout(fixVh, 200); setTimeout(fixVh, 600);
+  }
+  function canFs() { return !!(DE.requestFullscreen || DE.webkitRequestFullscreen) && (D.fullscreenEnabled !== false) && (D.webkitFullscreenEnabled !== false || D.fullscreenEnabled); }
+  function toggleFs() {
+    try {
+      if (fsActive()) { var ex = D.exitFullscreen || D.webkitExitFullscreen; if (ex) ex.call(D); return; }
+      var rq = DE.requestFullscreen || DE.webkitRequestFullscreen;
+      if (!rq || !canFs()) {
+        if (inFrame) { window.open(APP_URL, '_blank'); return; }
+        return toast('En el iPhone el navegador no deja poner pantalla completa. Para verla sin barras: toca <b>Compartir</b> (el cuadrado con la flecha) → <b>Añadir a pantalla de inicio</b>, y ábrela desde ese icono.');
+      }
+      var r = rq.call(DE); if (r && r.then) r.then(null, function () { if (inFrame) window.open(APP_URL, '_blank'); else toast('No se ha podido poner la pantalla completa.'); });
+    } catch (e) {}
+  }
+  var fsb = document.querySelectorAll('.fs-toggle, #fsFab'); for (var f = 0; f < fsb.length; f++) fsb[f].addEventListener('click', toggleFs);
+  updateFs();
+  D.addEventListener('fullscreenchange', updateFs); D.addEventListener('webkitfullscreenchange', updateFs);
+
+  /* =================== GIRO Y TAMAÑO =================== */
+  function fixVh() {
+    DE.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+    try { var sm = Math.min(screen.width, screen.height); DE.className = (sm < 600 ? 'phone' : 'tablet') + (window.innerWidth > window.innerHeight ? ' landscape' : ' portrait'); } catch (e) {}
+  }
+  window.addEventListener('resize', fixVh);
+  window.addEventListener('orientationchange', function () { fixVh(); setTimeout(fixVh, 300); setTimeout(fixVh, 800); });
+  fixVh();
+
+  /* Para el guion / pruebas */
+  window.__RUDI = { showBreak: function () { showBreak(); }, AV: AV, avatarSVG: avatarSVG, mus: mus, LEVELS: LEVELS, GINFO: GINFO, S: function () { return S; }, startGame: function (g) { startGame(g); }, goMenu: goMenu };
+  goSplash();
+})();
+
+</script>
+<script>if("serviceWorker" in navigator && location.protocol==="https:"){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>
