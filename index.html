@@ -59,6 +59,7 @@
   .go { margin-top: 3vmin; background: #4CB963; color: #fff; font-size: 7vmin; font-weight: 800; border: none; padding: 2.5vmin 9vmin; border-radius: 6vmin; box-shadow: 0 1.2vmin 0 #2f8a44; }
   .go:active { -webkit-transform: translateY(0.8vmin); transform: translateY(0.8vmin); box-shadow: 0 0.4vmin 0 #2f8a44; }
   .go:disabled { opacity: .45; }
+  .visits { font-size: 1.7vmin; opacity: .4; margin-top: .8vmin; min-height: 2.2vmin; }
   .credit { font-size: 2.3vmin; margin-top: 2.5vmin; opacity: .75; line-height: 1.4; }
 
   /* Nombre */
@@ -326,6 +327,7 @@
     <p class="sub" id="splashHi"></p>
     <button class="go" id="playBtn">▶ Jugar</button>
     <div class="credit">Creado por Rodolfo López Martínez · 13/11/2026 · CC BY-NC 4.0<br>Gratuita, sin uso comercial · Funciona sin internet</div>
+    <div class="visits" id="visits"></div>
   </div>
 </div>
 
@@ -1241,6 +1243,15 @@ COMPOUNDS = COMPOUNDS.concat([
   var rudiEls = document.querySelectorAll('.rudi'); for (var r = 0; r < rudiEls.length; r++) rudiEls[r].innerHTML = RUDI;
   var avEls = document.querySelectorAll('.avatar'); for (var a2 = 0; a2 < avEls.length; a2++) avEls[a2].innerHTML = avatarSVG();
 
+  // contador discreto de visitas (sin cookies ni datos personales): suma 1 por cada vez que se abre la app
+  (function visitas() {
+    if (location.protocol !== 'https:' || typeof fetch === 'undefined') return;
+    var base = 'https://countapi.mileshilliard.com/api/v1/', key = 'rlopmar783-aleerconrudi-visitas', first = true;
+    try { first = !sessionStorage.getItem('rudi-visto'); sessionStorage.setItem('rudi-visto', '1'); } catch (e) {}
+    fetch(base + (first ? 'hit/' : 'get/') + key).then(function (r) { return r.json(); }).then(function (j) {
+      var n = parseInt(j.value, 10); if (n > 0) $('visits').textContent = n.toLocaleString('es-ES') + (n === 1 ? ' visita' : ' visitas');
+    }).catch(function () {});
+  })();
   function goSplash() { setBg('cielo'); $('splashHi').textContent = S.name ? '¡Hola, ' + S.name + '!' : ''; show('splash'); }
   $('playBtn').addEventListener('click', function () {
     unlockAudio(); loadVoices();

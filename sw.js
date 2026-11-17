@@ -1,4 +1,4 @@
-var V = 'rudi-83657671be';
+var V = 'rudi-b534c9f8fd';
 var CORE = ['./', 'index.html', 'manifest.json', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 var AUDIO = ["voz/p0-a6ee6449.bin", "voz/p1-a6ee6449.bin", "voz/p10-a6ee6449.bin", "voz/p11-a6ee6449.bin", "voz/p12-a6ee6449.bin", "voz/p13-a6ee6449.bin", "voz/p14-a6ee6449.bin", "voz/p15-a6ee6449.bin", "voz/p2-a6ee6449.bin", "voz/p3-a6ee6449.bin", "voz/p4-a6ee6449.bin", "voz/p5-a6ee6449.bin", "voz/p6-a6ee6449.bin", "voz/p7-a6ee6449.bin", "voz/p8-a6ee6449.bin", "voz/p9-a6ee6449.bin"];
 function fresh(u) { return new Request(u, { cache: 'reload' }); }
