@@ -1,6 +1,6 @@
-var V = 'rudi-af10467873';
+var V = 'rudi-94537b4e64';
 var CORE = ['./', 'index.html', 'manifest.json', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
-var AUDIO = ["voz/p0.bin", "voz/p1.bin", "voz/p2.bin", "voz/p3.bin"];
+var AUDIO = ["voz/p0.bin", "voz/p1.bin", "voz/p10.bin", "voz/p11.bin", "voz/p12.bin", "voz/p13.bin", "voz/p14.bin", "voz/p15.bin", "voz/p2.bin", "voz/p3.bin", "voz/p4.bin", "voz/p5.bin", "voz/p6.bin", "voz/p7.bin", "voz/p8.bin", "voz/p9.bin"];
 self.addEventListener('install', function (e) {
   self.skipWaiting();
   e.waitUntil(caches.open(V).then(function (c) { return c.addAll(CORE); }));
