@@ -1057,10 +1057,27 @@ COMPOUNDS = COMPOUNDS.concat([
   }
   function music(want) { if (want) musicOn(); else musicOff(); }
 
+  // frases compuestas sin grabación propia («ga... to... gato», «tres huevos»): se montan con trozos que sí están grabados
+  function splitKnown(t) {
+    function tryWords(w) {
+      var out = [], i = 0;
+      while (i < w.length) {
+        var j = w.length;
+        for (; j > i; j--) if (VOZ[w.slice(i, j).join(' ')]) break;
+        if (j === i) return null;
+        out.push(w.slice(i, j).join(' ')); i = j;
+      }
+      return out.length > 1 && out.length <= 4 ? out : null;
+    }
+    if (/\s\.\.\./.test(t)) return null; // frases con hueco «...»: mejor la voz del aparato que perder la pausa
+    var k = key(t); if (!k) return null;
+    return tryWords(k.split(' ')) || tryWords(k.replace(/ empieza por (?!la )/, ' empieza por la ').split(' '));
+  }
   function next() {
     if (!queue.length) { busy = false; setMusicGain(); return; }
     busy = true; setMusicGain();
-    var t = queue.shift(), v = (typeof VOZ !== 'undefined' && S.rec !== false) ? VOZ[key(t)] : null;
+    var t = queue.shift(), rec = typeof VOZ !== 'undefined' && S.rec !== false, v = rec ? VOZ[key(t)] : null;
+    if (!v && rec) { var sp = splitKnown(t); if (sp) { queue = sp.concat(queue); t = queue.shift(); v = VOZ[t]; } }
     if (v) playClip(v, next, t); else playTTS(t, next);
   }
   function say(parts, keep) {
